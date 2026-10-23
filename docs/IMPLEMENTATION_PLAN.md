@@ -15,3 +15,12 @@ PB UNDERGROUND is delivered through strict phase gates:
 10. Launch: real content, production infrastructure, live payments and handover.
 
 Each phase must pass lint, types, tests, responsive review, accessibility checks, and its documented acceptance criteria before the next phase is considered complete.
+
+## Current checkpoint
+
+- Phase 0: repository foundation, environment contract, CI, test harness, and Supabase migration framework complete.
+- Phase 1: branded home and About experience complete with responsive and reduced-motion treatment.
+- Phase 2: catalogue complete with 12 labelled sample products, four editorial category pages, 12 product routes, URL-synced search/filter/sort, variant stock handling, local quick add, notification capture, product APIs, and verified Supabase migration/seed data.
+- Next: Phase 3, implementing the persistent cart, delivery zones and slots, coupons, COD checkout, confirmation, and order tracking.
+
+Production Supabase credentials, real products, photography, supplier approvals, and commercial copy remain launch inputs and are intentionally not represented as complete.

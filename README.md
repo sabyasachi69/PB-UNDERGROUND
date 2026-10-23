@@ -4,7 +4,9 @@ An editorial, mobile-first storefront and supplier operating platform for a loca
 
 ## Status
 
-Phase 0 foundation and the first branded storefront slice are in progress. Sample names and claims are explicitly labelled until the owner supplies launch content.
+Phase 2 (catalogue) is complete. The repository now includes the branded home and About pages plus a responsive sample catalogue with category pages, product detail pages, live variants, URL-synced filters, search, sorting, quick add, stock notifications, product APIs, and a Supabase catalogue schema with seed data.
+
+All fictional maker names, products, reviews, imagery, and commercial claims remain explicitly labelled `[SAMPLE]` until launch content is supplied. Phase 3 will add the full cart and checkout journey; the Phase 2 bag badge is intentionally local-only.
 
 ## Local setup
 
@@ -12,6 +14,7 @@ Requirements:
 
 - Node.js 22+
 - npm 10+
+- Docker Desktop (only when running Supabase locally)
 
 ```bash
 npm install
@@ -21,6 +24,15 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+To run the local database separately:
+
+```bash
+npm run supabase:start
+npm run db:reset
+```
+
+The catalogue works without a database connection by using the checked-in sample data. The migration and seed files are ready for a Supabase project once its credentials are supplied.
+
 ## Quality commands
 
 ```bash
@@ -28,6 +40,7 @@ npm run lint
 npm run typecheck
 npm test
 npm run build
+npm run db:lint
 ```
 
 ## Project principles

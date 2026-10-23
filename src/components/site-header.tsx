@@ -1,5 +1,7 @@
-import { Menu, ShoppingBag, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
+
+import { BagLink } from "@/components/bag-link";
 
 const navigation = [
   { href: "/shop", label: "Shop" },
@@ -24,11 +26,7 @@ export function SiteHeader() {
       </nav>
 
       <div className="header-actions">
-        <Link className="bag-link" href="/shop" aria-label="Open shopping bag, currently empty">
-          <ShoppingBag aria-hidden="true" size={18} strokeWidth={1.6} />
-          <span>Bag</span>
-          <span className="bag-count">0</span>
-        </Link>
+        <BagLink />
 
         <details className="mobile-menu">
           <summary aria-label="Open navigation">

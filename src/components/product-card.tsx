@@ -1,33 +1,41 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
-import type { FeaturedProduct } from "@/data/products";
+import { QuickAdd } from "@/components/quick-add";
+import { isProductInStock, type Product } from "@/data/products";
 import { formatInrFromPaise } from "@/lib/money";
 
-type ProductCardProps = {
-  product: FeaturedProduct;
-  index: number;
-};
+type ProductCardProps = { product: Product; index: number };
 
 export function ProductCard({ product, index }: ProductCardProps) {
+  const inStock = isProductInStock(product);
   return (
-    <article className="product-card">
-      <Link className={`product-visual product-visual--${product.palette}`} href={`/shop#${product.slug}`}>
-        <span className="product-index">0{index + 1}</span>
+    <article className="product-card" id={product.slug}>
+      <Link className={`product-visual product-visual--${product.palette}`} href={`/product/${product.slug}`}>
+        <span className="product-index">{String(index + 1).padStart(2, "0")}</span>
         <span className="sample-asset">Sample art direction</span>
         <span className="product-silhouette" aria-hidden="true" />
+        {!inStock ? <span className="stock-badge">Sold out</span> : null}
       </Link>
       <div className="product-details">
         <div>
-          <p>{product.category}</p>
-          <h3>{product.name}</h3>
-          <span>{product.maker}</span>
+          <p><Link href={`/shop/${product.categorySlug}`}>{product.category}</Link></p>
+          <h3><Link href={`/product/${product.slug}`}>{product.name}</Link></h3>
+          <span>{product.supplierName}</span>
+          <div className="product-swatches" aria-label={`Available colours: ${product.colours.map((colour) => colour.name).join(", ")}`}>
+            {product.colours.map((colour) => <i key={colour.name} style={{ backgroundColor: colour.hex }} title={colour.name} />)}
+          </div>
         </div>
         <div className="product-price">
-          <strong>{formatInrFromPaise(product.priceInPaise)}</strong>
+          <div>
+            {product.compareAtPaise ? <del>{formatInrFromPaise(product.compareAtPaise)}</del> : null}
+            <strong>{formatInrFromPaise(product.priceInPaise)}</strong>
+            <small>GST included</small>
+          </div>
           <ArrowUpRight aria-hidden="true" size={18} strokeWidth={1.5} />
         </div>
       </div>
+      {inStock ? <QuickAdd productName={product.name} variants={product.variants} /> : null}
     </article>
   );
 }
