@@ -58,3 +58,23 @@ select id, '/sample-assets/' || slug || '-01.webp', 'Sample front view of ' || n
 insert into public.reviews (product_id, reviewer_name, rating, body, verified_purchase, status) values
   ('30000000-0000-4000-8000-000000000001', 'Aarav K.', 5, 'Heavy without feeling stiff. The hood sits properly.', true, 'published'),
   ('30000000-0000-4000-8000-000000000003', 'Mehak S.', 5, 'The waist adjuster and pocket depth are genuinely useful.', true, 'published');
+
+insert into public.zones (id, name, slug, area_description, pincodes, delivery_fee_paise, free_above_paise) values
+  ('50000000-0000-4000-8000-000000000001', 'LPU Main Gate', 'main-gate', 'Main gate and university offices', array['144411'], 3000, 49900),
+  ('50000000-0000-4000-8000-000000000002', 'Boys’ Hostels', 'boys-hostels', 'Designated hostel gate hand-off', array['144411'], 3000, 49900),
+  ('50000000-0000-4000-8000-000000000003', 'Girls’ Hostels', 'girls-hostels', 'Designated hostel gate hand-off', array['144411'], 3000, 49900),
+  ('50000000-0000-4000-8000-000000000004', 'Phagwara Side', 'phagwara-side', 'Selected nearby localities', array['144401', '144402', '144411'], 3000, 49900);
+
+insert into public.delivery_windows (id, label, start_time, end_time, cutoff_minutes, sort_order) values
+  ('60000000-0000-4000-8000-000000000001', '11:00–13:00', '11:00', '13:00', 120, 1),
+  ('60000000-0000-4000-8000-000000000002', '15:00–17:00', '15:00', '17:00', 120, 2),
+  ('60000000-0000-4000-8000-000000000003', '18:00–20:00', '18:00', '20:00', 120, 3);
+
+insert into public.coupons (id, code, discount_type, value_paise_or_bps, min_order_paise, usage_limit) values
+  ('70000000-0000-4000-8000-000000000001', 'STUDENT10', 'percent', 1000, 49900, 500),
+  ('70000000-0000-4000-8000-000000000002', 'LOCAL50', 'flat', 5000, 29900, 500);
+
+insert into public.settings (key, value) values
+  ('delivery', '{"minimum_order_paise":19900,"default_fee_paise":3000,"free_above_paise":49900,"slot_cutoff_minutes":120}'::jsonb),
+  ('returns', '{"window_hours":48,"condition":"Unworn with tags, for size or defect"}'::jsonb),
+  ('payments', '{"methods":["cod"],"cod_exact_change_note":true}'::jsonb);

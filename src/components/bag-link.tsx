@@ -21,7 +21,7 @@ export function BagLink() {
   }, []);
 
   return (
-    <Link className="bag-link" href="/shop" aria-label={`Open shopping bag, ${count} ${count === 1 ? "item" : "items"}`}>
+    <Link className="bag-link" href="/cart" aria-label={`Open shopping bag, ${count} ${count === 1 ? "item" : "items"}`}>
       <ShoppingBag aria-hidden="true" size={18} strokeWidth={1.6} />
       <span>Bag</span>
       <span className="bag-count" aria-hidden="true">{count}</span>

@@ -4,9 +4,9 @@ An editorial, mobile-first storefront and supplier operating platform for a loca
 
 ## Status
 
-Phase 2 (catalogue) is complete. The repository now includes the branded home and About pages plus a responsive sample catalogue with category pages, product detail pages, live variants, URL-synced filters, search, sorting, quick add, stock notifications, product APIs, and a Supabase catalogue schema with seed data.
+Phase 3 (cart and checkout) is complete. The repository now includes the branded storefront and catalogue plus a persistent browser cart, save for later, server-validated coupons and totals, delivery-zone checks, cutoff-aware slots, a three-step guest checkout, idempotent COD orders, stock decrement, confirmation, and privacy-minimised tracking.
 
-All fictional maker names, products, reviews, imagery, and commercial claims remain explicitly labelled `[SAMPLE]` until launch content is supplied. Phase 3 will add the full cart and checkout journey; the Phase 2 bag badge is intentionally local-only.
+All fictional maker names, products, reviews, imagery, and commercial claims remain explicitly labelled `[SAMPLE]` until launch content is supplied. Phase 4 will add Razorpay test-mode UPI, webhook verification, payment polling, and failed-payment stock release.
 
 ## Local setup
 
@@ -31,7 +31,12 @@ npm run supabase:start
 npm run db:reset
 ```
 
-The catalogue works without a database connection by using the checked-in sample data. The migration and seed files are ready for a Supabase project once its credentials are supplied.
+The catalogue and COD walkthrough work without a database connection by using checked-in sample data and an isolated in-memory server order store. This demo order store resets when the server restarts and must not be used for live orders. The verified Supabase migrations include the durable Phase 2 and Phase 3 tables and are ready to connect once project credentials are supplied.
+
+Demo coupon codes:
+
+- `STUDENT10` — 10% off orders of ₹499 or more.
+- `LOCAL50` — ₹50 off orders of ₹299 or more.
 
 ## Quality commands
 

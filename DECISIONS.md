@@ -19,6 +19,7 @@ This file records reversible implementation choices that are not final business 
 - The guided supplier demo will use an isolated browser-side fixture store and will never touch live customer or payment data.
 - Multi-supplier orders will use supplier-specific fulfillment records rather than one shared supplier status.
 - Vercel Hobby may be used for a non-commercial demo only. Commercial hosting is a launch-gate decision.
+- Until a Supabase project is connected, the Phase 3 COD walkthrough uses an isolated in-memory server order store. It performs real validation, idempotency, and stock decrement for the running demo, but resets on restart and is explicitly not a live-order datastore.
 
 ## Decisions still requiring owner approval
 
