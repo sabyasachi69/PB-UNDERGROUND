@@ -1,6 +1,13 @@
 import { isSameOrigin, takeRateLimit } from "@/lib/api-security";
 import { createOrderSchema } from "@/lib/commerce-schema";
-import { createDemoOrder } from "@/lib/demo-order-store";
+import {
+  attachDemoProviderOrder,
+  createDemoOrder,
+  failDemoPayment,
+  getDemoPaymentLaunch,
+  getDemoPaymentSetup,
+} from "@/lib/demo-order-store";
+import { createRazorpayOrder, getPaymentRuntime } from "@/lib/razorpay";
 
 export const dynamic = "force-dynamic";
 
@@ -24,8 +31,29 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = createDemoOrder(parsed.data);
-    return Response.json(result, {
+    const runtime = parsed.data.paymentMethod === "upi" ? getPaymentRuntime() : null;
+    const result = createDemoOrder(parsed.data, new Date(), runtime?.provider);
+    let payment = undefined;
+    if (parsed.data.paymentMethod === "upi") {
+      const setup = getDemoPaymentSetup(result.order.orderNumber);
+      try {
+        if (runtime?.provider === "razorpay" && !result.replayed) {
+          const providerOrder = await createRazorpayOrder({
+            orderNumber: result.order.orderNumber,
+            amountInPaise: setup.amountInPaise,
+          });
+          attachDemoProviderOrder(result.order.orderNumber, providerOrder.id, setup.attemptToken);
+        }
+        payment = getDemoPaymentLaunch(
+          result.order.orderNumber,
+          runtime?.provider === "razorpay" ? runtime.keyId : undefined,
+        );
+      } catch (error) {
+        failDemoPayment(result.order.orderNumber, setup.attemptToken);
+        throw error;
+      }
+    }
+    return Response.json({ ...result, payment }, {
       status: result.replayed ? 200 : 201,
       headers: { "Cache-Control": "no-store" },
     });

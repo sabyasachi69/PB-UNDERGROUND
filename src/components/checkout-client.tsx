@@ -8,9 +8,52 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { clearCart } from "@/lib/cart";
 import { STORE_SETTINGS, type CartQuote, type DeliverySlot } from "@/lib/commerce";
 import { formatInrFromPaise } from "@/lib/money";
+import type { PaymentLaunch } from "@/lib/order-types";
 import { useCartLines, useHydrated } from "@/hooks/use-cart";
 
 type ZoneCheck = { serviceable: boolean; message: string };
+type PaymentMethod = "cod" | "upi";
+type PaymentSession = { orderNumber: string; payment: PaymentLaunch };
+
+type RazorpaySuccess = {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+};
+
+type RazorpayFailure = {
+  error: {
+    description?: string;
+    reason?: string;
+    metadata?: { payment_id?: string };
+  };
+};
+
+type RazorpayInstance = {
+  open: () => void;
+  on: (event: "payment.failed", callback: (response: RazorpayFailure) => void) => void;
+};
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => RazorpayInstance;
+  }
+}
+
+async function loadRazorpayCheckout() {
+  if (window.Razorpay) return;
+  const existing = document.querySelector<HTMLScriptElement>('script[data-pbu-razorpay="checkout"]');
+  existing?.remove();
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.dataset.pbuRazorpay = "checkout";
+    script.addEventListener("load", () => resolve(), { once: true });
+    script.addEventListener("error", () => reject(new Error("Razorpay Checkout could not load.")), { once: true });
+    document.head.append(script);
+  });
+}
 
 type ContactState = {
   name: string;
@@ -54,6 +97,9 @@ export function CheckoutClient() {
   const [quote, setQuote] = useState<CartQuote | null>(null);
   const [submitError, setSubmitError] = useState("");
   const [placingOrder, setPlacingOrder] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
+  const [paymentSession, setPaymentSession] = useState<PaymentSession | null>(null);
+  const [completingPayment, setCompletingPayment] = useState(false);
   const idempotencyKey = useRef<string | null>(null);
 
   useEffect(() => {
@@ -144,6 +190,95 @@ export function CheckoutClient() {
     setStep(3);
   }
 
+  async function recordPaymentFailure(session: PaymentSession, failure?: RazorpayFailure) {
+    await fetch("/api/payments/razorpay/failure", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        orderNumber: session.orderNumber,
+        attemptToken: session.payment.attemptToken,
+        razorpayPaymentId: failure?.error.metadata?.payment_id,
+        reason: failure?.error.reason ?? failure?.error.description,
+      }),
+    });
+  }
+
+  async function openRazorpayPayment(session: PaymentSession) {
+    if (!session.payment.keyId) throw new Error("The Razorpay test key is missing from this payment session.");
+    await loadRazorpayCheckout();
+    if (!window.Razorpay) throw new Error("Razorpay Checkout did not initialise.");
+    const checkout = new window.Razorpay({
+      key: session.payment.keyId,
+      amount: session.payment.amountInPaise,
+      currency: session.payment.currency,
+      name: "PB UNDERGROUND",
+      description: `Test payment for ${session.orderNumber}`,
+      order_id: session.payment.providerOrderId,
+      method: "upi",
+      remember_customer: false,
+      timeout: 900,
+      prefill: {
+        name: contact.name,
+        email: contact.email,
+        contact: `+91${contact.phone}`,
+      },
+      theme: { color: "#c8431e" },
+      modal: {
+        confirm_close: true,
+        ondismiss: () => router.push(`/order/${session.orderNumber}`),
+      },
+      handler: async (response: RazorpaySuccess) => {
+        try {
+          const verification = await fetch("/api/payments/razorpay/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderNumber: session.orderNumber,
+              attemptToken: session.payment.attemptToken,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+            }),
+          });
+          const result = await verification.json() as { error?: string };
+          if (!verification.ok) throw new Error(result.error ?? "The payment could not be verified.");
+          clearCart();
+          router.push(`/order/${session.orderNumber}`);
+        } catch (error) {
+          setSubmitError(error instanceof Error ? error.message : "The payment could not be verified.");
+          router.push(`/order/${session.orderNumber}`);
+        }
+      },
+    });
+    checkout.on("payment.failed", (failure) => {
+      void recordPaymentFailure(session, failure).finally(() => router.push(`/order/${session.orderNumber}`));
+    });
+    checkout.open();
+  }
+
+  async function completeTestPayment(outcome: "success" | "failure") {
+    if (!paymentSession || paymentSession.payment.provider !== "simulator" || completingPayment) return;
+    setCompletingPayment(true);
+    setSubmitError("");
+    try {
+      const response = await fetch("/api/payments/test/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNumber: paymentSession.orderNumber,
+          attemptToken: paymentSession.payment.attemptToken,
+          outcome,
+        }),
+      });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error ?? "The test payment could not be completed.");
+      if (outcome === "success") clearCart();
+      router.push(`/order/${paymentSession.orderNumber}`);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "The test payment could not be completed.");
+      setCompletingPayment(false);
+    }
+  }
+
   async function placeOrder() {
     if (placingOrder || !quote?.isCheckoutReady || !slotId) return;
     setPlacingOrder(true);
@@ -162,7 +297,7 @@ export function CheckoutClient() {
       },
       zoneId,
       slotId,
-      paymentMethod: "cod",
+      paymentMethod,
       notes: contact.notes || undefined,
     } as const;
     try {
@@ -171,10 +306,21 @@ export function CheckoutClient() {
         headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey.current },
         body: JSON.stringify(payload),
       });
-      const result = await response.json() as { error?: string; order?: { orderNumber: string } };
-      if (!response.ok || !result.order) throw new Error(result.error ?? "The order could not be placed.");
-      clearCart();
-      router.push(`/order/${result.order.orderNumber}`);
+      const result = await response.json() as { error?: string; order?: { orderNumber: string }; payment?: PaymentLaunch };
+      if (!response.ok || !result.order) {
+        if (response.ok === false) idempotencyKey.current = null;
+        throw new Error(result.error ?? "The order could not be placed.");
+      }
+      if (paymentMethod === "cod") {
+        clearCart();
+        router.push(`/order/${result.order.orderNumber}`);
+        return;
+      }
+      if (!result.payment) throw new Error("The payment session was not returned.");
+      const session = { orderNumber: result.order.orderNumber, payment: result.payment };
+      setPaymentSession(session);
+      if (result.payment.provider === "razorpay") await openRazorpayPayment(session);
+      setPlacingOrder(false);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "The order could not be placed.");
       setPlacingOrder(false);
@@ -247,16 +393,16 @@ export function CheckoutClient() {
         {step === 3 ? (
           <section className="checkout-step">
             <div className="step-heading"><span>03</span><div><p className="eyebrow">No account required</p><h2>Review it once. Place it once.</h2></div></div>
-            <div className="payment-choice is-selected">
-              <span><WalletCards aria-hidden="true" size={22} /></span><div><strong>Cash on Delivery</strong><p>Keep exact change if possible. The delivery person’s details appear on tracking once dispatched.</p></div><Check aria-hidden="true" size={18} />
-            </div>
-            <div className="payment-choice is-disabled" aria-disabled="true">
-              <span>UPI</span><div><strong>UPI via Razorpay</strong><p>Test-mode UPI arrives in Phase 4 after webhook verification is added.</p></div>
-            </div>
+            <button className={`payment-choice ${paymentMethod === "cod" ? "is-selected" : ""}`} type="button" aria-pressed={paymentMethod === "cod"} onClick={() => setPaymentMethod("cod")}>
+              <span><WalletCards aria-hidden="true" size={22} /></span><div><strong>Cash on Delivery</strong><p>Keep exact change if possible. The delivery person’s details appear on tracking once dispatched.</p></div>{paymentMethod === "cod" ? <Check aria-hidden="true" size={18} /> : null}
+            </button>
+            <button className={`payment-choice ${paymentMethod === "upi" ? "is-selected" : ""}`} type="button" aria-pressed={paymentMethod === "upi"} onClick={() => setPaymentMethod("upi")}>
+              <span>UPI</span><div><strong>UPI via Razorpay</strong><p>Runs in test mode. Payment is signature-verified and stock is held for 15 minutes.</p></div>{paymentMethod === "upi" ? <Check aria-hidden="true" size={18} /> : null}
+            </button>
             <label className="checkout-notes">Note for delivery <small>Optional</small><textarea value={contact.notes} onChange={(event) => updateContact("notes", event.target.value)} maxLength={300} placeholder="Gate, timing or hand-off detail" /></label>
             <div className="review-address"><span>Deliver to</span><strong>{contact.name}</strong><p>{contact.line1}{contact.line2 ? `, ${contact.line2}` : ""}<br />{STORE_SETTINGS.zones.find((zone) => zone.id === zoneId)?.name} — {contact.pincode}</p><button type="button" onClick={() => setStep(1)}>Edit address</button></div>
             {submitError ? <p className="form-message is-error" role="alert">{submitError}</p> : null}
-            <div className="step-actions"><button className="button button--ghost" type="button" onClick={() => setStep(2)}><ArrowLeft aria-hidden="true" size={18} /> Back</button><button className="button button--signal" type="button" disabled={placingOrder || !quote?.isCheckoutReady} onClick={placeOrder}>{placingOrder ? "Placing once…" : `Place COD order · ${formatInrFromPaise(quote?.totalInPaise ?? 0)}`}</button></div>
+            <div className="step-actions"><button className="button button--ghost" type="button" onClick={() => setStep(2)}><ArrowLeft aria-hidden="true" size={18} /> Back</button><button className="button button--signal" type="button" disabled={placingOrder || !quote?.isCheckoutReady} onClick={placeOrder}>{placingOrder ? "Preparing securely…" : `${paymentMethod === "cod" ? "Place COD order" : "Pay with UPI"} · ${formatInrFromPaise(quote?.totalInPaise ?? 0)}`}</button></div>
           </section>
         ) : null}
       </section>
@@ -272,6 +418,22 @@ export function CheckoutClient() {
         </dl>
         <p>GST included. Final prices, coupon, stock and slot are recalculated by the server when the order is placed.</p>
       </aside>
+
+      {paymentSession?.payment.provider === "simulator" ? (
+        <div className="payment-test-overlay" role="dialog" aria-modal="true" aria-labelledby="test-payment-title">
+          <section className="payment-test-panel">
+            <p className="eyebrow">[SAMPLE] Local test payment</p>
+            <h2 id="test-payment-title">Choose the bank response.</h2>
+            <p>No money moves. This credential-free simulator exercises the same paid and failed order states used by Razorpay test mode.</p>
+            <dl><div><dt>Order</dt><dd>{paymentSession.orderNumber}</dd></div><div><dt>Amount</dt><dd>{formatInrFromPaise(paymentSession.payment.amountInPaise)}</dd></div></dl>
+            {submitError ? <p className="form-message is-error" role="alert">{submitError}</p> : null}
+            <div className="payment-test-actions">
+              <button className="button button--signal" type="button" disabled={completingPayment} onClick={() => completeTestPayment("success")}>{completingPayment ? "Recording…" : "Simulate success"}</button>
+              <button className="button button--ghost" type="button" disabled={completingPayment} onClick={() => completeTestPayment("failure")}>Simulate failure</button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </div>
   );
 }

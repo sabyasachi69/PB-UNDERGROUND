@@ -20,6 +20,9 @@ This file records reversible implementation choices that are not final business 
 - Multi-supplier orders will use supplier-specific fulfillment records rather than one shared supplier status.
 - Vercel Hobby may be used for a non-commercial demo only. Commercial hosting is a launch-gate decision.
 - Until a Supabase project is connected, the Phase 3 COD walkthrough uses an isolated in-memory server order store. It performs real validation, idempotency, and stock decrement for the running demo, but resets on restart and is explicitly not a live-order datastore.
+- Until Razorpay test credentials are supplied, Phase 4 uses a clearly labelled local success/failure simulator. With credentials present, only `rzp_test_` keys are accepted; live collection remains a launch-gate decision.
+- UPI inventory reservations expire after 15 minutes. Failure and expiry restore stock exactly once, while successful signature verification commits the reservation.
+- Razorpay webhook bodies are verified before JSON parsing, and `x-razorpay-event-id` is the replay-protection key. The durable schema stores only a payload hash rather than a full webhook body.
 
 ## Decisions still requiring owner approval
 

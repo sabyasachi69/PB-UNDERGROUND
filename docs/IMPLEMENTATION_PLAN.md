@@ -22,6 +22,7 @@ Each phase must pass lint, types, tests, responsive review, accessibility checks
 - Phase 1: branded home and About experience complete with responsive and reduced-motion treatment.
 - Phase 2: catalogue complete with 12 labelled sample products, four editorial category pages, 12 product routes, URL-synced search/filter/sort, variant stock handling, local quick add, notification capture, product APIs, and verified Supabase migration/seed data.
 - Phase 3: cart and checkout complete with persistent quantities, save for later, server quotes, coupon validation, zone checks, cutoff-aware slots, guest COD checkout, idempotent order creation, stock decrement, confirmation, tracking, and a verified Supabase order schema.
-- Next: Phase 4, adding Razorpay test-mode UPI, signature-verified webhooks, payment status polling, replay protection, and failed-payment inventory release.
+- Phase 4: payments complete with Razorpay test-mode UPI Orders, a credential-free local simulator, server-side checkout signature verification, raw-body webhook validation, event-ID replay protection, three-second payment polling, and exactly-once inventory release on failure or 15-minute expiry.
+- Next: Phase 5, adding customer authentication, saved addresses, order history, reorder, wishlist and returns.
 
 Production Supabase credentials, real products, photography, supplier approvals, and commercial copy remain launch inputs and are intentionally not represented as complete.

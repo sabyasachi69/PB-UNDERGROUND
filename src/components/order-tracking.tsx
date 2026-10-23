@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, MapPin, PackageCheck, Share2, Truck } from "lucide-react";
+import { ArrowRight, Check, CircleAlert, Clock3, MapPin, PackageCheck, Share2, ShieldCheck, Truck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -28,6 +28,28 @@ export function OrderTracking({ orderNumber }: { orderNumber: string }) {
     return () => controller.abort();
   }, [orderNumber]);
 
+  useEffect(() => {
+    if (order?.paymentStatus !== "pending") return;
+    const controller = new AbortController();
+    const timer = window.setInterval(() => {
+      fetch(`/api/orders/${encodeURIComponent(orderNumber)}/payment`, { signal: controller.signal, cache: "no-store" })
+        .then(async (response) => {
+          const result = await response.json() as {
+            payment?: Pick<TrackingOrder, "paymentMethod" | "paymentStatus" | "paymentProvider" | "paymentExpiresAt" | "status" | "events">;
+          };
+          if (!response.ok || !result.payment) return;
+          setOrder((current) => current ? { ...current, ...result.payment } : current);
+        })
+        .catch((pollError: unknown) => {
+          if (pollError instanceof DOMException && pollError.name === "AbortError") return;
+        });
+    }, 3_000);
+    return () => {
+      window.clearInterval(timer);
+      controller.abort();
+    };
+  }, [order?.paymentStatus, orderNumber]);
+
   async function shareTracking() {
     const url = window.location.href;
     try {
@@ -49,12 +71,21 @@ export function OrderTracking({ orderNumber }: { orderNumber: string }) {
   return (
     <>
       <header className="tracking-hero">
-        <div><p className="eyebrow">Order confirmed / Cash on Delivery</p><h1>It’s on<br />the board.</h1></div>
+        <div><p className="eyebrow">Order {order.paymentStatus === "paid" || order.paymentStatus === "due_on_delivery" ? "confirmed" : "received"} / {order.paymentMethod === "cod" ? "Cash on Delivery" : "UPI"}</p><h1>{order.paymentStatus === "failed" ? <>Payment<br />didn’t land.</> : <>It’s on<br />the board.</>}</h1></div>
         <div className="tracking-number"><span>Order number</span><strong>{order.orderNumber}</strong><button type="button" onClick={shareTracking}><Share2 aria-hidden="true" size={16} /> Share tracking</button><p role="status">{shareStatus}</p></div>
       </header>
 
       <section className="tracking-layout">
         <div className="tracking-main">
+          {order.paymentMethod === "upi" ? (
+            <div className={`payment-status-banner is-${order.paymentStatus}`} role="status">
+              {order.paymentStatus === "pending" ? <Clock3 aria-hidden="true" size={22} /> : order.paymentStatus === "paid" ? <ShieldCheck aria-hidden="true" size={22} /> : <CircleAlert aria-hidden="true" size={22} />}
+              <div>
+                <strong>{order.paymentStatus === "pending" ? "Waiting for payment confirmation" : order.paymentStatus === "paid" ? "UPI payment verified" : "UPI payment failed or expired"}</strong>
+                <p>{order.paymentStatus === "pending" ? "This page checks securely every three seconds. Reserved stock is released after 15 minutes." : order.paymentStatus === "paid" ? "The verified payment is attached to this order." : "Reserved stock has been returned. Your bag remains available so you can place a new order."}</p>
+              </div>
+            </div>
+          ) : null}
           <div className="tracking-intro"><span className="tracking-mark"><PackageCheck aria-hidden="true" size={28} /></span><div><h2>Thanks, {order.firstName}.</h2><p>Your order is placed for {order.slotDateLabel}, {order.slotLabel}. We’ll update this page as each hand-off happens.</p></div></div>
           <ol className="tracking-timeline">
             {order.events.map((event) => {
@@ -79,7 +110,7 @@ export function OrderTracking({ orderNumber }: { orderNumber: string }) {
             <div><dt>Subtotal</dt><dd>{formatInrFromPaise(order.subtotalInPaise)}</dd></div>
             {order.discountInPaise ? <div className="is-discount"><dt>{order.couponCode}</dt><dd>−{formatInrFromPaise(order.discountInPaise)}</dd></div> : null}
             <div><dt>Delivery</dt><dd>{order.deliveryFeeInPaise ? formatInrFromPaise(order.deliveryFeeInPaise) : "Free"}</dd></div>
-            <div className="totals-grand"><dt>COD due</dt><dd>{formatInrFromPaise(order.totalInPaise)}</dd></div>
+            <div className="totals-grand"><dt>{order.paymentStatus === "paid" ? "Paid" : order.paymentStatus === "failed" ? "Payment failed" : order.paymentMethod === "cod" ? "COD due" : "UPI pending"}</dt><dd>{formatInrFromPaise(order.totalInPaise)}</dd></div>
           </dl>
           <div className="tracking-help"><span>Need help?</span><p>Keep this order number ready. Support contact details will be added with the owner’s launch information.</p></div>
         </aside>

@@ -4,9 +4,9 @@ An editorial, mobile-first storefront and supplier operating platform for a loca
 
 ## Status
 
-Phase 3 (cart and checkout) is complete. The repository now includes the branded storefront and catalogue plus a persistent browser cart, save for later, server-validated coupons and totals, delivery-zone checks, cutoff-aware slots, a three-step guest checkout, idempotent COD orders, stock decrement, confirmation, and privacy-minimised tracking.
+Phase 4 (payments) is complete. The repository now includes the branded storefront, catalogue and Phase 3 checkout plus Cash on Delivery, Razorpay test-mode UPI Orders, server-side checkout-signature verification, raw-body webhook verification, webhook replay protection, payment-status polling, and exactly-once inventory release for failed or 15-minute-expired payments.
 
-All fictional maker names, products, reviews, imagery, and commercial claims remain explicitly labelled `[SAMPLE]` until launch content is supplied. Phase 4 will add Razorpay test-mode UPI, webhook verification, payment polling, and failed-payment stock release.
+All fictional maker names, products, reviews, imagery, and commercial claims remain explicitly labelled `[SAMPLE]` until launch content is supplied. Phase 5 will add customer accounts, saved addresses, order history, reorder, wishlist and returns.
 
 ## Local setup
 
@@ -31,7 +31,9 @@ npm run supabase:start
 npm run db:reset
 ```
 
-The catalogue and COD walkthrough work without a database connection by using checked-in sample data and an isolated in-memory server order store. This demo order store resets when the server restarts and must not be used for live orders. The verified Supabase migrations include the durable Phase 2 and Phase 3 tables and are ready to connect once project credentials are supplied.
+The catalogue, COD checkout and UPI success/failure walkthrough work without a database or payment account by using checked-in sample data, an isolated in-memory server order store and a clearly labelled local payment simulator. This demo state resets when the server restarts and must not be used for live orders. The verified Supabase migrations include the durable Phase 2–4 tables and are ready to connect once project credentials are supplied.
+
+To exercise Razorpay itself, add all three test-mode values to `.env.local`: `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` and `RAZORPAY_WEBHOOK_SECRET`. Only `rzp_test_` keys are accepted in Phase 4. Configure the test webhook URL as `/api/payments/razorpay/webhook` and subscribe to `payment.captured`, `payment.failed` and `order.paid`. Secrets stay server-side.
 
 Demo coupon codes:
 
@@ -55,6 +57,7 @@ npm run db:lint
 - Prices, stock, delivery rules, coupons, roles, and state transitions are enforced on the server.
 - Supabase tables in exposed schemas must use Row Level Security.
 - Real secrets are never committed. See `.env.example` for the required names.
+- Online orders are fulfilled only after a verified payment state; browser totals and unverified payment callbacks are never trusted.
 - Missing owner-provided content is labelled `[SAMPLE]`, never presented as fact.
 
 See [`DECISIONS.md`](./DECISIONS.md) for working assumptions and [`docs/IMPLEMENTATION_PLAN.md`](./docs/IMPLEMENTATION_PLAN.md) for the phased delivery sequence.

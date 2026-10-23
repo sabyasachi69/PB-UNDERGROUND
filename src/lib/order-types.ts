@@ -16,8 +16,10 @@ export type TrackingOrder = {
   slotDate: string;
   slotDateLabel: string;
   slotLabel: string;
-  paymentMethod: "cod";
-  paymentStatus: "due_on_delivery";
+  paymentMethod: "cod" | "upi";
+  paymentStatus: "due_on_delivery" | "pending" | "paid" | "failed";
+  paymentProvider: "razorpay" | "simulator" | null;
+  paymentExpiresAt: string | null;
   subtotalInPaise: number;
   discountInPaise: number;
   deliveryFeeInPaise: number;
@@ -34,5 +36,15 @@ export type TrackingOrder = {
   }>;
   events: TrackingEvent[];
   deliveryPerson: { name: string; phone: string } | null;
+};
+
+export type PaymentLaunch = {
+  provider: "razorpay" | "simulator";
+  attemptToken: string;
+  providerOrderId: string;
+  amountInPaise: number;
+  currency: "INR";
+  expiresAt: string;
+  keyId?: string;
 };
 

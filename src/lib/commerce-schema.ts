@@ -33,8 +33,28 @@ export const createOrderSchema = z.object({
   }),
   zoneId: z.string().min(1).max(80),
   slotId: z.string().min(1).max(120),
-  paymentMethod: z.literal("cod"),
+  paymentMethod: z.enum(["cod", "upi"]),
   notes: z.string().trim().max(300).optional(),
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+
+export const paymentVerificationSchema = z.object({
+  orderNumber: z.string().regex(/^PBU-[0-9]{6}-[0-9]{4}$/),
+  attemptToken: z.uuid(),
+  razorpayPaymentId: z.string().min(5).max(80),
+  razorpaySignature: z.string().regex(/^[a-f0-9]{64}$/i),
+});
+
+export const paymentFailureSchema = z.object({
+  orderNumber: z.string().regex(/^PBU-[0-9]{6}-[0-9]{4}$/),
+  attemptToken: z.uuid(),
+  razorpayPaymentId: z.string().min(5).max(80).optional(),
+  reason: z.string().trim().max(200).optional(),
+});
+
+export const testPaymentCompletionSchema = z.object({
+  orderNumber: z.string().regex(/^PBU-[0-9]{6}-[0-9]{4}$/),
+  attemptToken: z.uuid(),
+  outcome: z.enum(["success", "failure"]),
+});
