@@ -116,7 +116,8 @@ summary {
 
 .desktop-nav,
 .header-actions,
-.bag-link {
+.bag-link,
+.account-link {
   display: flex;
   align-items: center;
 }
@@ -164,6 +165,14 @@ summary {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.account-link {
+  gap: 0.42rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .bag-count {

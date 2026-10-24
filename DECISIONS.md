@@ -23,6 +23,9 @@ This file records reversible implementation choices that are not final business 
 - Until Razorpay test credentials are supplied, Phase 4 uses a clearly labelled local success/failure simulator. With credentials present, only `rzp_test_` keys are accepted; live collection remains a launch-gate decision.
 - UPI inventory reservations expire after 15 minutes. Failure and expiry restore stock exactly once, while successful signature verification commits the reservation.
 - Razorpay webhook bodies are verified before JSON parsing, and `x-razorpay-event-id` is the replay-protection key. The durable schema stores only a payload hash rather than a full webhook body.
+- Until a Supabase project is connected, Phase 5 uses scrypt-hashed disposable credentials, a signed HttpOnly SameSite=Lax cookie and an owner-scoped in-memory customer store. The local store is a demo fallback only and resets with the server.
+- Connected customer authentication uses Supabase Auth email/password with `@supabase/ssr`. The app trusts `auth.getUser()` and database RLS, never editable user metadata, for ownership.
+- Return evidence accepts one to three JPEG, PNG or WebP images of at most 2 MB each. Connected mode writes to the private `return-evidence` bucket; demo mode keeps data URLs in memory only.
 
 ## Decisions still requiring owner approval
 

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 import { clearCart } from "@/lib/cart";
+import type { AccountSnapshot, SavedAddress } from "@/lib/account-types";
 import { STORE_SETTINGS, type CartQuote, type DeliverySlot } from "@/lib/commerce";
 import { formatInrFromPaise } from "@/lib/money";
 import type { PaymentLaunch } from "@/lib/order-types";
@@ -99,8 +100,36 @@ export function CheckoutClient() {
   const [placingOrder, setPlacingOrder] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [paymentSession, setPaymentSession] = useState<PaymentSession | null>(null);
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [completingPayment, setCompletingPayment] = useState(false);
   const idempotencyKey = useRef<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/account", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => response.ok ? response.json() as Promise<AccountSnapshot> : null)
+      .then((account) => {
+        if (!account) return;
+        setSavedAddresses(account.addresses);
+        setContact((current) => ({ ...current, name: current.name || account.user.displayName, email: current.email || account.user.email, phone: current.phone || account.user.phone || "" }));
+      })
+      .catch((caught: unknown) => { if (!(caught instanceof DOMException && caught.name === "AbortError")) setSavedAddresses([]); });
+    return () => controller.abort();
+  }, []);
+
+  function applySavedAddress(address: SavedAddress) {
+    setContact((current) => ({
+      ...current,
+      name: address.recipientName,
+      phone: address.phone,
+      line1: address.line1,
+      line2: address.line2 ?? "",
+      landmark: address.landmark ?? "",
+      pincode: address.pincode,
+    }));
+    if (address.zoneId && STORE_SETTINGS.zones.some((zone) => zone.id === address.zoneId)) setZoneId(address.zoneId);
+    setZoneCheck(null);
+  }
 
   useEffect(() => {
     if (!hydrated || !lines.length) return;
@@ -353,6 +382,7 @@ export function CheckoutClient() {
         {step === 1 ? (
           <form className="checkout-step" onSubmit={continueFromAddress}>
             <div className="step-heading"><span>01</span><div><p className="eyebrow">Guest checkout</p><h2>Where should this reach you?</h2></div></div>
+            {savedAddresses.length ? <div className="saved-address-picker"><span>Use a saved address</span><div>{savedAddresses.map((address) => <button key={address.id} type="button" onClick={() => applySavedAddress(address)}><strong>{address.label}</strong><small>{address.line1} / {address.pincode}</small></button>)}</div></div> : null}
             <div className="form-grid">
               <label>Full name<input required autoComplete="name" value={contact.name} onChange={(event) => updateContact("name", event.target.value)} /></label>
               <label>Mobile number<input required inputMode="tel" autoComplete="tel" minLength={10} maxLength={10} value={contact.phone} onChange={(event) => updateContact("phone", event.target.value)} /></label>

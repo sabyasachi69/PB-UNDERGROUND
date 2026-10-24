@@ -1,4 +1,5 @@
 import { isSameOrigin, takeRateLimit } from "@/lib/api-security";
+import { getCurrentUser } from "@/lib/auth";
 import { createOrderSchema } from "@/lib/commerce-schema";
 import {
   attachDemoProviderOrder,
@@ -32,7 +33,8 @@ export async function POST(request: Request) {
 
   try {
     const runtime = parsed.data.paymentMethod === "upi" ? getPaymentRuntime() : null;
-    const result = createDemoOrder(parsed.data, new Date(), runtime?.provider);
+    const user = await getCurrentUser();
+    const result = createDemoOrder(parsed.data, new Date(), runtime?.provider, user?.id ?? null);
     let payment = undefined;
     if (parsed.data.paymentMethod === "upi") {
       const setup = getDemoPaymentSetup(result.order.orderNumber);

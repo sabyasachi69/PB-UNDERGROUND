@@ -9,9 +9,11 @@ import {
   type OrderStatus,
 } from "@/lib/commerce";
 import type { CreateOrderInput } from "@/lib/commerce-schema";
+import type { AccountOrder } from "@/lib/account-types";
 import type { TrackingOrder } from "@/lib/order-types";
 
 type PrivateOrder = TrackingOrder & {
+  profileId: string | null;
   idempotencyKey: string;
   contactPhone: string;
   email: string | null;
@@ -87,6 +89,7 @@ export function createDemoOrder(
   input: CreateOrderInput,
   now = new Date(),
   paymentProvider: "razorpay" | "simulator" = "simulator",
+  profileId: string | null = null,
 ) {
   expirePaymentReservations(now);
   const existingOrderNumber = state.idempotency.get(input.idempotencyKey);
@@ -114,6 +117,7 @@ export function createDemoOrder(
   const placedAt = now.toISOString();
   const number = orderNumber(now);
   const order: PrivateOrder = {
+    profileId,
     orderNumber: number,
     idempotencyKey: input.idempotencyKey,
     firstName: input.contact.name.trim().split(/\s+/)[0] ?? "Guest",
@@ -161,6 +165,35 @@ export function createDemoOrder(
   state.idempotency.set(input.idempotencyKey, number);
   if (order.providerOrderId) state.providerOrders.set(order.providerOrderId, number);
   return { order: toTrackingOrder(order), replayed: false };
+}
+
+export function getDemoOrdersForProfile(profileId: string, now = new Date()): AccountOrder[] {
+  expirePaymentReservations(now);
+  return [...state.orders.values()]
+    .filter((order) => order.profileId === profileId)
+    .map((order) => {
+      const deliveredAt = order.events.find((event) => event.status === "delivered")?.timestamp ?? null;
+      return {
+        id: order.orderNumber,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        paymentStatus: order.paymentStatus,
+        totalInPaise: order.totalInPaise,
+        placedAt: order.placedAt,
+        deliveredAt,
+        returnEligibleUntil: deliveredAt ? new Date(Date.parse(deliveredAt) + 48 * 60 * 60_000).toISOString() : null,
+        items: order.items.map((item) => ({
+          id: `${order.orderNumber}:${item.variantId}`,
+          variantId: item.variantId,
+          productSlug: item.productSlug,
+          name: item.name,
+          size: item.size,
+          colour: item.colour,
+          quantity: item.quantity,
+          lineTotalInPaise: item.lineTotalInPaise,
+        })),
+      };
+    });
 }
 
 function toTrackingOrder(order: PrivateOrder): TrackingOrder {

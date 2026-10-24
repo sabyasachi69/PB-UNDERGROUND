@@ -1,4 +1,4 @@
-import { Menu, X } from "lucide-react";
+import { Menu, UserRound, X } from "lucide-react";
 import Link from "next/link";
 
 import { BagLink } from "@/components/bag-link";
@@ -26,6 +26,7 @@ export function SiteHeader() {
       </nav>
 
       <div className="header-actions">
+        <Link className="account-link" href="/account" aria-label="Your account"><UserRound aria-hidden="true" size={18} /><span>Account</span></Link>
         <BagLink />
 
         <details className="mobile-menu">
@@ -39,6 +40,7 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
+            <Link href="/account">Account</Link>
           </nav>
         </details>
       </div>

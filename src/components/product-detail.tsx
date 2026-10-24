@@ -7,6 +7,7 @@ import { FormEvent, useRef, useState } from "react";
 import type { Product } from "@/data/products";
 import { addCartItem } from "@/lib/cart";
 import { formatInrFromPaise } from "@/lib/money";
+import { WishlistButton } from "@/components/wishlist-button";
 
 type ProductDetailProps = { product: Product };
 
@@ -142,6 +143,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           <button className="button button--signal add-to-bag" type="button" disabled={!inStock} onClick={addSelectedVariant}>
             {added ? <><Check aria-hidden="true" size={18} /> Added to bag</> : "Add to bag"}
           </button>
+          <WishlistButton variantId={selectedVariant.id} />
 
           {!inStock ? (
             <form className="notify-form" onSubmit={requestNotification}>

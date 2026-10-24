@@ -2,6 +2,7 @@ import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 import { QuickAdd } from "@/components/quick-add";
+import { WishlistButton } from "@/components/wishlist-button";
 import { isProductInStock, type Product } from "@/data/products";
 import { formatInrFromPaise } from "@/lib/money";
 
@@ -9,6 +10,7 @@ type ProductCardProps = { product: Product; index: number };
 
 export function ProductCard({ product, index }: ProductCardProps) {
   const inStock = isProductInStock(product);
+  const wishVariant = product.variants.find((variant) => variant.stockQty > 0) ?? product.variants[0];
   return (
     <article className="product-card" id={product.slug}>
       <Link className={`product-visual product-visual--${product.palette}`} href={`/product/${product.slug}`}>
@@ -17,6 +19,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
         <span className="product-silhouette" aria-hidden="true" />
         {!inStock ? <span className="stock-badge">Sold out</span> : null}
       </Link>
+      <WishlistButton variantId={wishVariant.id} compact />
       <div className="product-details">
         <div>
           <p><Link href={`/shop/${product.categorySlug}`}>{product.category}</Link></p>
