@@ -11,3 +11,4 @@ tmp/
 .env.*.local
 !.env.example
 *.tsbuildinfo
+.vercel
