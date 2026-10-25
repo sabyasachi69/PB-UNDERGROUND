@@ -13,7 +13,7 @@ export function SiteFooter() {
         <Link href="/shop">Shop</Link>
         <Link href="/about">Our story</Link>
         <Link href="/#delivery">Delivery</Link>
-        <Link href="/#partners">Partner with us</Link>
+        <Link href="/partner">Partner with us</Link>
       </nav>
       <div className="footer-meta">
         <span>LPU + nearby</span>

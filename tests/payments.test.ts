@@ -47,14 +47,14 @@ describe("UPI payment lifecycle", () => {
 
     const successBefore = getDemoStock(now).get(successVariant.id)!;
     const successful = createDemoOrder(upiOrderInput(now, successVariant.id), now, "simulator");
-    const successSetup = getDemoPaymentSetup(successful.order.orderNumber);
+    const successSetup = getDemoPaymentSetup(successful.order.orderNumber, now);
     completeSimulatedPayment(successful.order.orderNumber, successSetup.attemptToken, "success", now);
     expect(getDemoTrackingOrder(successful.order.orderNumber, now)?.paymentStatus).toBe("paid");
     expect(getDemoStock(now).get(successVariant.id)).toBe(successBefore - 1);
 
     const failureBefore = getDemoStock(now).get(failureVariant.id)!;
     const failed = createDemoOrder(upiOrderInput(now, failureVariant.id), now, "simulator");
-    const failureSetup = getDemoPaymentSetup(failed.order.orderNumber);
+    const failureSetup = getDemoPaymentSetup(failed.order.orderNumber, now);
     completeSimulatedPayment(failed.order.orderNumber, failureSetup.attemptToken, "failure", now);
     completeSimulatedPayment(failed.order.orderNumber, failureSetup.attemptToken, "failure", now);
     expect(getDemoTrackingOrder(failed.order.orderNumber, now)?.paymentStatus).toBe("failed");
@@ -77,8 +77,8 @@ describe("UPI payment lifecycle", () => {
     const now = new Date("2026-10-24T03:00:00.000Z");
     const variant = products.find((product) => product.slug === "everyday-heavy-tee")!.variants[0];
     const created = createDemoOrder(upiOrderInput(now, variant.id), now, "razorpay");
-    const setup = getDemoPaymentSetup(created.order.orderNumber);
-    attachDemoProviderOrder(created.order.orderNumber, "order_rzp_test_replay", setup.attemptToken);
+    const setup = getDemoPaymentSetup(created.order.orderNumber, now);
+    attachDemoProviderOrder(created.order.orderNumber, "order_rzp_test_replay", setup.attemptToken, now);
 
     processDemoWebhook({
       eventId: "evt_wrong_amount",

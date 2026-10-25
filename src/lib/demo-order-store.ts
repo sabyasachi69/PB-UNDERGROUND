@@ -268,8 +268,13 @@ function paymentOrder(number: string, attemptToken?: string, now = new Date()) {
   return order;
 }
 
-export function attachDemoProviderOrder(number: string, providerOrderId: string, attemptToken: string) {
-  const order = paymentOrder(number, attemptToken);
+export function attachDemoProviderOrder(
+  number: string,
+  providerOrderId: string,
+  attemptToken: string,
+  now = new Date(),
+) {
+  const order = paymentOrder(number, attemptToken, now);
   if (order.providerOrderId && order.providerOrderId !== providerOrderId) {
     throw new Error("A different payment order is already attached.");
   }
@@ -278,8 +283,8 @@ export function attachDemoProviderOrder(number: string, providerOrderId: string,
   return toTrackingOrder(order);
 }
 
-export function getDemoPaymentLaunch(number: string, keyId?: string) {
-  const order = paymentOrder(number);
+export function getDemoPaymentLaunch(number: string, keyId?: string, now = new Date()) {
+  const order = paymentOrder(number, undefined, now);
   if (!order.paymentProvider || !order.paymentAttemptToken || !order.providerOrderId || !order.paymentExpiresAt) {
     throw new Error("The payment session is not ready.");
   }
@@ -294,8 +299,8 @@ export function getDemoPaymentLaunch(number: string, keyId?: string) {
   };
 }
 
-export function getDemoPaymentSetup(number: string) {
-  const order = paymentOrder(number);
+export function getDemoPaymentSetup(number: string, now = new Date()) {
+  const order = paymentOrder(number, undefined, now);
   if (!order.paymentProvider || !order.paymentAttemptToken) throw new Error("The payment session is not ready.");
   return {
     provider: order.paymentProvider,

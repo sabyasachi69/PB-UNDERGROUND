@@ -4,9 +4,13 @@ An editorial, mobile-first storefront and supplier operating platform for a loca
 
 ## Status
 
-Phase 5 (customer accounts) is complete. The repository now includes the branded storefront, catalogue, checkout and payments plus password authentication, secure cookie sessions, profile editing, five saved addresses, signed-in order history, one-click reorder, variant wishlists, photo-backed returns, sign-out and confirmed account deletion.
+Phase 5 (customer accounts) is complete and Phase 6 (supplier side) is in progress. The repository now includes the branded storefront, catalogue, checkout and payments plus password authentication, secure cookie sessions, profile editing, five saved addresses, signed-in order history, one-click reorder, variant wishlists, photo-backed returns, sign-out and confirmed account deletion.
 
-All fictional maker names, products, reviews, imagery, and commercial claims remain explicitly labelled `[SAMPLE]` until launch content is supplied. Phase 6 will add the supplier sales page, onboarding, product manager, order queue, fulfillment and settlements.
+The first Phase 6 increment adds a complete supplier sales page at `/partner`, a tested live commission calculator, and an eight-step sample-data walkthrough at `/partner/demo` covering profile setup, product entry, order acceptance, packing, hand-off, settlement export and return approval. Supplier authentication, approval, connected product management, the live fulfillment queue and database-backed settlements remain in the next Phase 6 increments.
+
+All fictional maker names, products, reviews, imagery, and commercial claims remain explicitly labelled `[SAMPLE]` until launch content is supplied.
+
+The latest architecture and connectivity review is available as a [downloadable technical audit](./output/pdf/PB_UNDERGROUND_Technical_Audit.pdf).
 
 ## Local setup
 
@@ -31,7 +35,7 @@ npm run supabase:start
 npm run db:reset
 ```
 
-The catalogue, COD checkout, UPI success/failure walkthrough and customer account flow work without external accounts by using checked-in sample data, isolated in-memory server stores and a clearly labelled local payment simulator. Create a disposable account at `/signup`; a delivered sample order is added so the 48-hour return flow can be tested. Demo state resets when the server restarts and must not be used for live orders.
+The catalogue, COD checkout, UPI success/failure walkthrough, customer account flow and supplier walkthrough work without external accounts by using checked-in sample data, isolated in-memory server stores and a clearly labelled local payment simulator. Create a disposable account at `/signup`; a delivered sample order is added so the 48-hour return flow can be tested. The supplier walkthrough is available without an account at `/partner/demo`. Demo state resets and must not be used for live orders.
 
 When `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are set, authentication and customer records switch to Supabase Auth and the RLS-protected Phase 5 schema. `SUPABASE_SECRET_KEY` is server-only and is required for self-service account deletion. The migration also creates the private `return-evidence` Storage bucket, 2 MB image limits and owner-scoped policies.
 

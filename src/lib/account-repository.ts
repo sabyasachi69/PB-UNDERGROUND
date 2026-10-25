@@ -2,8 +2,8 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 
-import { products } from "@/data/products";
 import type { AccountOrder, AccountSnapshot, AccountUser, ReturnRequest, SavedAddress, WishlistEntry } from "@/lib/account-types";
+import { findCatalogueVariantByIdentity, findCatalogueVariantByLocalId } from "@/lib/catalogue-identifiers";
 import { demoAccounts } from "@/lib/demo-account-store";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
 
@@ -46,8 +46,10 @@ export async function getAccountSnapshot(user: AccountUser): Promise<AccountSnap
   const wishlist: WishlistEntry[] = (wishlistResult.data ?? []).flatMap((row) => {
     const variant = row.product_variants as unknown as SupabaseVariantRow | null;
     if (!variant?.products) return [];
+    const localVariant = findCatalogueVariantByIdentity(variant.products.slug, variant.size, variant.colour);
+    if (!localVariant) return [];
     return [{
-      variantId: variant.id,
+      variantId: localVariant.variant.id,
       productSlug: variant.products.slug,
       productName: variant.products.name,
       size: variant.size,
@@ -68,16 +70,20 @@ export async function getAccountSnapshot(user: AccountUser): Promise<AccountSnap
       placedAt: row.created_at,
       deliveredAt,
       returnEligibleUntil: deliveredAt ? new Date(Date.parse(deliveredAt) + 48 * 60 * 60_000).toISOString() : null,
-      items: (row.order_items ?? []).map((item) => ({
-        id: item.id,
-        variantId: item.variant_id,
-        productSlug: (item.products as unknown as { slug?: string } | null)?.slug ?? "shop",
-        name: item.name_snapshot,
-        size: item.size_snapshot,
-        colour: item.colour_snapshot,
-        quantity: item.quantity,
-        lineTotalInPaise: item.line_total_paise,
-      })),
+      items: (row.order_items ?? []).map((item) => {
+        const productSlug = (item.products as unknown as { slug?: string } | null)?.slug ?? "shop";
+        const localVariant = findCatalogueVariantByIdentity(productSlug, item.size_snapshot, item.colour_snapshot);
+        return {
+          id: item.id,
+          variantId: localVariant?.variant.id ?? item.variant_id,
+          productSlug,
+          name: item.name_snapshot,
+          size: item.size_snapshot,
+          colour: item.colour_snapshot,
+          quantity: item.quantity,
+          lineTotalInPaise: item.line_total_paise,
+        };
+      }),
     };
   });
 
@@ -143,7 +149,7 @@ export async function removeAccountAddress(user: AccountUser, addressId: string)
 
 export async function addAccountWishlistItem(user: AccountUser, localVariantId: string) {
   if (!isSupabaseConfigured()) return demoAccounts.addWishlist(user.id, localVariantId);
-  const local = products.flatMap((product) => product.variants.map((variant) => ({ product, variant }))).find(({ variant }) => variant.id === localVariantId);
+  const local = findCatalogueVariantByLocalId(localVariantId);
   if (!local) throw new Error("That product variant no longer exists.");
   const supabase = await createSupabaseServerClient();
   const { data: productRow, error: productError } = await supabase!.from("products").select("id").eq("slug", local.product.slug).single();
@@ -152,13 +158,19 @@ export async function addAccountWishlistItem(user: AccountUser, localVariantId: 
   if (variantError) throw new Error(variantError.message);
   const { error } = await supabase!.from("wishlists").upsert({ profile_id: user.id, variant_id: variant.id });
   if (error) throw new Error(error.message);
-  return { variantId: variant.id };
+  return { variantId: localVariantId };
 }
 
-export async function removeAccountWishlistItem(user: AccountUser, variantId: string) {
-  if (!isSupabaseConfigured()) return demoAccounts.removeWishlist(user.id, variantId);
+export async function removeAccountWishlistItem(user: AccountUser, localVariantId: string) {
+  if (!isSupabaseConfigured()) return demoAccounts.removeWishlist(user.id, localVariantId);
+  const local = findCatalogueVariantByLocalId(localVariantId);
+  if (!local) return false;
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase!.from("wishlists").delete().eq("profile_id", user.id).eq("variant_id", variantId).select("variant_id").maybeSingle();
+  const { data: productRow, error: productError } = await supabase!.from("products").select("id").eq("slug", local.product.slug).single();
+  if (productError) throw new Error(productError.message);
+  const { data: variant, error: variantError } = await supabase!.from("product_variants").select("id").eq("product_id", productRow.id).eq("size", local.variant.size).eq("colour", local.variant.colour.name).single();
+  if (variantError) throw new Error(variantError.message);
+  const { data, error } = await supabase!.from("wishlists").delete().eq("profile_id", user.id).eq("variant_id", variant.id).select("variant_id").maybeSingle();
   if (error) throw new Error(error.message);
   return Boolean(data);
 }

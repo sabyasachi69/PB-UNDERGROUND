@@ -7,7 +7,7 @@ const navigation = [
   { href: "/shop", label: "Shop" },
   { href: "/about", label: "Story" },
   { href: "/#delivery", label: "Delivery" },
-  { href: "/#partners", label: "For suppliers" },
+  { href: "/partner", label: "For suppliers" },
 ] as const;
 
 export function SiteHeader() {

@@ -32,26 +32,28 @@ export async function POST(request: Request) {
   }
 
   try {
+    const now = new Date();
     const runtime = parsed.data.paymentMethod === "upi" ? getPaymentRuntime() : null;
     const user = await getCurrentUser();
-    const result = createDemoOrder(parsed.data, new Date(), runtime?.provider, user?.id ?? null);
+    const result = createDemoOrder(parsed.data, now, runtime?.provider, user?.id ?? null);
     let payment = undefined;
     if (parsed.data.paymentMethod === "upi") {
-      const setup = getDemoPaymentSetup(result.order.orderNumber);
+      const setup = getDemoPaymentSetup(result.order.orderNumber, now);
       try {
         if (runtime?.provider === "razorpay" && !result.replayed) {
           const providerOrder = await createRazorpayOrder({
             orderNumber: result.order.orderNumber,
             amountInPaise: setup.amountInPaise,
           });
-          attachDemoProviderOrder(result.order.orderNumber, providerOrder.id, setup.attemptToken);
+          attachDemoProviderOrder(result.order.orderNumber, providerOrder.id, setup.attemptToken, now);
         }
         payment = getDemoPaymentLaunch(
           result.order.orderNumber,
           runtime?.provider === "razorpay" ? runtime.keyId : undefined,
+          now,
         );
       } catch (error) {
-        failDemoPayment(result.order.orderNumber, setup.attemptToken);
+        failDemoPayment(result.order.orderNumber, setup.attemptToken, now);
         throw error;
       }
     }
