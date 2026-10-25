@@ -100,6 +100,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             {product.compareAtPaise ? <del>{formatInrFromPaise(product.compareAtPaise)}</del> : null}
             <span>Inclusive of GST</span>
           </div>
+          <p className="delivery-promise"><Truck aria-hidden="true" size={17} /> Delivery from 45 minutes around LPU. Exact promise shown before payment.</p>
 
           <fieldset className="variant-group colour-options">
             <legend>Colour <strong>{selectedColour}</strong></legend>
@@ -123,6 +124,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <div>
               {product.sizes.map((size) => {
                 const variant = product.variants.find((item) => item.colour.name === selectedColour && item.size === size);
+                const availability = !variant?.stockQty ? "Out" : variant.stockQty <= 2 ? "Low" : "";
                 return (
                   <button
                     type="button"
@@ -130,7 +132,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
                     onClick={() => { setSelectedSize(size); setAdded(false); }}
                     aria-pressed={selectedSize === size}
                     className={variant?.stockQty === 0 ? "is-unavailable" : ""}
-                  >{size}<span className="sr-only">{variant?.stockQty === 0 ? " — sold out" : ""}</span></button>
+                    disabled={!variant?.stockQty}
+                  ><span>{size}</span>{availability ? <small>{availability}</small> : null}<span className="sr-only">{availability ? ` — ${availability === "Out" ? "sold out" : "low stock"}` : ""}</span></button>
                 );
               })}
             </div>
@@ -164,16 +167,23 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <strong>{deliveryWindows[zone]}</strong>
           </div>
 
-          <dl className="product-facts">
-            <div><dt>Fabric</dt><dd>{product.fabric}</dd></div>
-            <div><dt>Care</dt><dd>{product.care}</dd></div>
-            <div><dt>Returns</dt><dd>Within 48 hours, unworn with tags, for size or defect.</dd></div>
-          </dl>
+          <div className="product-facts">
+            <details><summary>Fabric <span>+</span></summary><p>{product.fabric}</p></details>
+            <details><summary>Care <span>+</span></summary><p>{product.care}</p></details>
+            <details><summary>Returns <span>+</span></summary><p>Within 48 hours, unworn with tags, for size or defect.</p></details>
+          </div>
 
           <Link className="maker-card" href={`/shop?supplier=${product.supplierSlug}`}>
             <span>Made nearby by</span><strong>{product.supplierName}</strong><small>See this maker’s pieces →</small>
           </Link>
         </section>
+      </div>
+
+      <div className="mobile-add-bar" aria-label="Selected product and add to bag">
+        <div><span>{selectedColour} / {selectedSize}</span><strong>{formatInrFromPaise(selectedVariant.priceInPaise)}</strong></div>
+        <button className="button button--signal" type="button" disabled={!inStock} onClick={addSelectedVariant}>
+          {added ? <><Check aria-hidden="true" size={17} /> Added</> : inStock ? "Add to bag" : "Sold out"}
+        </button>
       </div>
 
       <section className="reviews-section" aria-labelledby="reviews-title">

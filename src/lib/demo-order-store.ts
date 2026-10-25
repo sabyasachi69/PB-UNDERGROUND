@@ -1,4 +1,4 @@
-import { randomInt, randomUUID } from "node:crypto";
+import { randomInt, randomUUID, timingSafeEqual } from "node:crypto";
 
 import { products } from "@/data/products";
 import {
@@ -10,11 +10,12 @@ import {
 } from "@/lib/commerce";
 import type { CreateOrderInput } from "@/lib/commerce-schema";
 import type { AccountOrder } from "@/lib/account-types";
-import type { TrackingOrder } from "@/lib/order-types";
+import type { PublicTrackingOrder, TrackingOrder } from "@/lib/order-types";
 
 type PrivateOrder = TrackingOrder & {
   profileId: string | null;
   idempotencyKey: string;
+  trackingToken: string;
   contactPhone: string;
   email: string | null;
   address: CreateOrderInput["address"];
@@ -95,7 +96,9 @@ export function createDemoOrder(
   const existingOrderNumber = state.idempotency.get(input.idempotencyKey);
   if (existingOrderNumber) {
     const existingOrder = state.orders.get(existingOrderNumber);
-    if (existingOrder) return { order: toTrackingOrder(existingOrder), replayed: true };
+    if (existingOrder) {
+      return { order: toTrackingOrder(existingOrder), trackingToken: existingOrder.trackingToken, replayed: true };
+    }
   }
 
   const zoneCheck = checkDeliveryZone(input.zoneId, input.address.pincode);
@@ -120,6 +123,7 @@ export function createDemoOrder(
     profileId,
     orderNumber: number,
     idempotencyKey: input.idempotencyKey,
+    trackingToken: randomUUID(),
     firstName: input.contact.name.trim().split(/\s+/)[0] ?? "Guest",
     contactPhone: input.contact.phone,
     email: input.contact.email || null,
@@ -164,7 +168,7 @@ export function createDemoOrder(
   state.orders.set(number, order);
   state.idempotency.set(input.idempotencyKey, number);
   if (order.providerOrderId) state.providerOrders.set(order.providerOrderId, number);
-  return { order: toTrackingOrder(order), replayed: false };
+  return { order: toTrackingOrder(order), trackingToken: order.trackingToken, replayed: false };
 }
 
 export function getDemoOrdersForProfile(profileId: string, now = new Date()): AccountOrder[] {
@@ -176,6 +180,7 @@ export function getDemoOrdersForProfile(profileId: string, now = new Date()): Ac
       return {
         id: order.orderNumber,
         orderNumber: order.orderNumber,
+        trackingToken: order.trackingToken,
         status: order.status,
         paymentStatus: order.paymentStatus,
         totalInPaise: order.totalInPaise,
@@ -226,6 +231,38 @@ export function getDemoTrackingOrder(number: string, now = new Date()) {
   expirePaymentReservations(now);
   const order = state.orders.get(number.toUpperCase());
   return order ? toTrackingOrder(order) : null;
+}
+
+function tokensMatch(expected: string, candidate: string) {
+  const expectedBytes = Buffer.from(expected);
+  const candidateBytes = Buffer.from(candidate);
+  return expectedBytes.length === candidateBytes.length && timingSafeEqual(expectedBytes, candidateBytes);
+}
+
+function toPublicTrackingOrder(order: PrivateOrder): PublicTrackingOrder {
+  return {
+    orderNumber: order.orderNumber,
+    firstName: order.firstName,
+    area: order.area,
+    zoneName: order.zoneName,
+    status: order.status,
+    placedAt: order.placedAt,
+    slotDateLabel: order.slotDateLabel,
+    slotLabel: order.slotLabel,
+    paymentMethod: order.paymentMethod,
+    paymentStatus: order.paymentStatus,
+    paymentProvider: order.paymentProvider,
+    paymentExpiresAt: order.paymentExpiresAt,
+    events: order.events.map((event) => ({ ...event })),
+    deliveryPerson: order.deliveryPerson ? { ...order.deliveryPerson } : null,
+  };
+}
+
+export function getDemoPublicTrackingOrder(number: string, trackingToken: string, now = new Date()) {
+  expirePaymentReservations(now);
+  const order = state.orders.get(number.toUpperCase());
+  if (!order || !tokensMatch(order.trackingToken, trackingToken)) return null;
+  return toPublicTrackingOrder(order);
 }
 
 function releaseReservedStock(order: PrivateOrder, now: Date) {

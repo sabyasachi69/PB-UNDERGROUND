@@ -13,8 +13,15 @@ export async function generateMetadata({ params }: { params: Promise<{ number: s
   };
 }
 
-export default async function OrderPage({ params }: { params: Promise<{ number: string }> }) {
-  const { number } = await params;
-  return <main className="tracking-page" id="main-content"><OrderTracking orderNumber={number} /></main>;
+export default async function OrderPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ number: string }>;
+  searchParams: Promise<{ token?: string | string[] }>;
+}) {
+  const [{ number }, query] = await Promise.all([params, searchParams]);
+  const trackingToken = typeof query.token === "string" ? query.token : "";
+  return <main className="tracking-page" id="main-content"><OrderTracking orderNumber={number} trackingToken={trackingToken} /></main>;
 }
 

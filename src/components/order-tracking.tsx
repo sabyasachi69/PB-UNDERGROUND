@@ -4,19 +4,19 @@ import { ArrowRight, Check, CircleAlert, Clock3, MapPin, PackageCheck, Share2, S
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { formatInrFromPaise } from "@/lib/money";
-import type { TrackingOrder } from "@/lib/order-types";
+import type { PublicTrackingOrder } from "@/lib/order-types";
 
-export function OrderTracking({ orderNumber }: { orderNumber: string }) {
-  const [order, setOrder] = useState<TrackingOrder | null>(null);
+export function OrderTracking({ orderNumber, trackingToken }: { orderNumber: string; trackingToken: string }) {
+  const [order, setOrder] = useState<PublicTrackingOrder | null>(null);
   const [error, setError] = useState("");
   const [shareStatus, setShareStatus] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`/api/orders/${encodeURIComponent(orderNumber)}/track`, { signal: controller.signal, cache: "no-store" })
+    const query = new URLSearchParams({ token: trackingToken });
+    fetch(`/api/orders/${encodeURIComponent(orderNumber)}/track?${query}`, { signal: controller.signal, cache: "no-store" })
       .then(async (response) => {
-        const result = await response.json() as { order?: TrackingOrder; error?: string };
+        const result = await response.json() as { order?: PublicTrackingOrder; error?: string };
         if (!response.ok || !result.order) throw new Error(result.error ?? "Order not found.");
         return result.order;
       })
@@ -26,16 +26,17 @@ export function OrderTracking({ orderNumber }: { orderNumber: string }) {
         setError(fetchError instanceof Error ? fetchError.message : "Order not found.");
       });
     return () => controller.abort();
-  }, [orderNumber]);
+  }, [orderNumber, trackingToken]);
 
   useEffect(() => {
     if (order?.paymentStatus !== "pending") return;
     const controller = new AbortController();
     const timer = window.setInterval(() => {
-      fetch(`/api/orders/${encodeURIComponent(orderNumber)}/payment`, { signal: controller.signal, cache: "no-store" })
+      const query = new URLSearchParams({ token: trackingToken });
+      fetch(`/api/orders/${encodeURIComponent(orderNumber)}/payment?${query}`, { signal: controller.signal, cache: "no-store" })
         .then(async (response) => {
           const result = await response.json() as {
-            payment?: Pick<TrackingOrder, "paymentMethod" | "paymentStatus" | "paymentProvider" | "paymentExpiresAt" | "status" | "events">;
+            payment?: Pick<PublicTrackingOrder, "paymentMethod" | "paymentStatus" | "paymentProvider" | "paymentExpiresAt" | "status" | "events">;
           };
           if (!response.ok || !result.payment) return;
           setOrder((current) => current ? { ...current, ...result.payment } : current);
@@ -48,7 +49,7 @@ export function OrderTracking({ orderNumber }: { orderNumber: string }) {
       window.clearInterval(timer);
       controller.abort();
     };
-  }, [order?.paymentStatus, orderNumber]);
+  }, [order?.paymentStatus, orderNumber, trackingToken]);
 
   async function shareTracking() {
     const url = window.location.href;
@@ -103,16 +104,10 @@ export function OrderTracking({ orderNumber }: { orderNumber: string }) {
         </div>
 
         <aside className="tracking-summary">
-          <p className="eyebrow">Order summary</p>
+          <p className="eyebrow">Private tracking</p>
           <div className="tracking-destination"><MapPin aria-hidden="true" size={18} /><div><strong>{order.zoneName}</strong><span>{order.area}</span></div></div>
-          <div className="tracking-items">{order.items.map((item) => <div key={item.variantId}><span>{item.quantity} × <Link href={`/product/${item.productSlug}`}>{item.name}</Link><small>{item.colour} / {item.size}</small></span><strong>{formatInrFromPaise(item.lineTotalInPaise)}</strong></div>)}</div>
-          <dl className="totals-list">
-            <div><dt>Subtotal</dt><dd>{formatInrFromPaise(order.subtotalInPaise)}</dd></div>
-            {order.discountInPaise ? <div className="is-discount"><dt>{order.couponCode}</dt><dd>−{formatInrFromPaise(order.discountInPaise)}</dd></div> : null}
-            <div><dt>Delivery</dt><dd>{order.deliveryFeeInPaise ? formatInrFromPaise(order.deliveryFeeInPaise) : "Free"}</dd></div>
-            <div className="totals-grand"><dt>{order.paymentStatus === "paid" ? "Paid" : order.paymentStatus === "failed" ? "Payment failed" : order.paymentMethod === "cod" ? "COD due" : "UPI pending"}</dt><dd>{formatInrFromPaise(order.totalInPaise)}</dd></div>
-          </dl>
-          <div className="tracking-help"><span>Need help?</span><p>Keep this order number ready. Support contact details will be added with the owner’s launch information.</p></div>
+          <div className="tracking-help"><span>Share carefully</span><p>This private link is the key to the order’s delivery progress. It intentionally hides the item list, amount, phone, email and street address.</p></div>
+          <Link className="text-link" href="/account">Open signed-in order history <ArrowRight aria-hidden="true" size={16} /></Link>
         </aside>
       </section>
 

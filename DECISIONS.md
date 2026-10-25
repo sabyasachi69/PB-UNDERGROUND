@@ -26,6 +26,8 @@ This file records reversible implementation choices that are not final business 
 - Until a Supabase project is connected, Phase 5 uses scrypt-hashed disposable credentials, a signed HttpOnly SameSite=Lax cookie and an owner-scoped in-memory customer store. The local store is a demo fallback only and resets with the server.
 - Connected customer authentication uses Supabase Auth email/password with `@supabase/ssr`. The app trusts `auth.getUser()` and database RLS, never editable user metadata, for ownership.
 - Return evidence accepts one to three JPEG, PNG or WebP images of at most 2 MB each. Connected mode writes to the private `return-evidence` bucket; demo mode keeps data URLs in memory only.
+- Supabase is the sole production data runtime. The in-memory stores exist only for an explicitly non-production demo; production order creation, payment state and tracking must use durable Supabase records before live commerce is enabled.
+- Public order tracking requires both the display order number and a random bearer token. The public route returns only delivery progress, slot, coarse destination and payment state—not line items, totals, phone, email or street address.
 
 ## Decisions still requiring owner approval
 

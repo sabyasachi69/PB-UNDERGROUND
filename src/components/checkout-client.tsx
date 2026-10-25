@@ -14,7 +14,11 @@ import { useCartLines, useHydrated } from "@/hooks/use-cart";
 
 type ZoneCheck = { serviceable: boolean; message: string };
 type PaymentMethod = "cod" | "upi";
-type PaymentSession = { orderNumber: string; payment: PaymentLaunch };
+type PaymentSession = { orderNumber: string; trackingToken: string; payment: PaymentLaunch };
+
+function trackingHref(orderNumber: string, trackingToken: string) {
+  return `/order/${encodeURIComponent(orderNumber)}?token=${encodeURIComponent(trackingToken)}`;
+}
 
 type RazorpaySuccess = {
   razorpay_payment_id: string;
@@ -251,10 +255,10 @@ export function CheckoutClient() {
         email: contact.email,
         contact: `+91${contact.phone}`,
       },
-      theme: { color: "#c8431e" },
+      theme: { color: "#E10600" },
       modal: {
         confirm_close: true,
-        ondismiss: () => router.push(`/order/${session.orderNumber}`),
+        ondismiss: () => router.push(trackingHref(session.orderNumber, session.trackingToken)),
       },
       handler: async (response: RazorpaySuccess) => {
         try {
@@ -271,15 +275,15 @@ export function CheckoutClient() {
           const result = await verification.json() as { error?: string };
           if (!verification.ok) throw new Error(result.error ?? "The payment could not be verified.");
           clearCart();
-          router.push(`/order/${session.orderNumber}`);
+          router.push(trackingHref(session.orderNumber, session.trackingToken));
         } catch (error) {
           setSubmitError(error instanceof Error ? error.message : "The payment could not be verified.");
-          router.push(`/order/${session.orderNumber}`);
+          router.push(trackingHref(session.orderNumber, session.trackingToken));
         }
       },
     });
     checkout.on("payment.failed", (failure) => {
-      void recordPaymentFailure(session, failure).finally(() => router.push(`/order/${session.orderNumber}`));
+      void recordPaymentFailure(session, failure).finally(() => router.push(trackingHref(session.orderNumber, session.trackingToken)));
     });
     checkout.open();
   }
@@ -301,7 +305,7 @@ export function CheckoutClient() {
       const result = await response.json() as { error?: string };
       if (!response.ok) throw new Error(result.error ?? "The test payment could not be completed.");
       if (outcome === "success") clearCart();
-      router.push(`/order/${paymentSession.orderNumber}`);
+      router.push(trackingHref(paymentSession.orderNumber, paymentSession.trackingToken));
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "The test payment could not be completed.");
       setCompletingPayment(false);
@@ -335,18 +339,19 @@ export function CheckoutClient() {
         headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey.current },
         body: JSON.stringify(payload),
       });
-      const result = await response.json() as { error?: string; order?: { orderNumber: string }; payment?: PaymentLaunch };
+      const result = await response.json() as { error?: string; order?: { orderNumber: string }; trackingToken?: string; payment?: PaymentLaunch };
       if (!response.ok || !result.order) {
         if (response.ok === false) idempotencyKey.current = null;
         throw new Error(result.error ?? "The order could not be placed.");
       }
+      if (!result.trackingToken) throw new Error("The private tracking link was not returned.");
       if (paymentMethod === "cod") {
         clearCart();
-        router.push(`/order/${result.order.orderNumber}`);
+        router.push(trackingHref(result.order.orderNumber, result.trackingToken));
         return;
       }
       if (!result.payment) throw new Error("The payment session was not returned.");
-      const session = { orderNumber: result.order.orderNumber, payment: result.payment };
+      const session = { orderNumber: result.order.orderNumber, trackingToken: result.trackingToken, payment: result.payment };
       setPaymentSession(session);
       if (result.payment.provider === "razorpay") await openRazorpayPayment(session);
       setPlacingOrder(false);
@@ -373,7 +378,7 @@ export function CheckoutClient() {
     <div className="checkout-shell">
       <section className="checkout-flow" aria-label="Checkout steps">
         <ol className="checkout-progress">
-          {["Contact + address", "Delivery slot", "Payment + review"].map((label, index) => {
+          {["Details", "Slot", "Pay"].map((label, index) => {
             const number = index + 1;
             return <li className={number === step ? "is-current" : number < step ? "is-complete" : ""} key={label}><span>{number < step ? <Check aria-hidden="true" size={14} /> : number}</span><strong>{label}</strong></li>;
           })}

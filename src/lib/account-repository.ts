@@ -37,7 +37,7 @@ export async function getAccountSnapshot(user: AccountUser): Promise<AccountSnap
   const [addressesResult, wishlistResult, ordersResult, returnsResult] = await Promise.all([
     supabase.from("addresses").select("*").order("is_default", { ascending: false }).order("created_at"),
     supabase.from("wishlists").select("variant_id, created_at, product_variants(id, size, colour, price_paise, products(slug, name, price_paise))").order("created_at", { ascending: false }),
-    supabase.from("orders").select("id, order_number, status, payment_status, total_paise, created_at, updated_at, order_items(id, variant_id, name_snapshot, size_snapshot, colour_snapshot, quantity, line_total_paise, products(slug))").order("created_at", { ascending: false }),
+    supabase.from("orders").select("id, order_number, tracking_token, status, payment_status, total_paise, created_at, updated_at, order_items(id, variant_id, name_snapshot, size_snapshot, colour_snapshot, quantity, line_total_paise, products(slug))").order("created_at", { ascending: false }),
     supabase.from("returns").select("id, order_id, reason, details, photo_urls, status, created_at, orders(order_number)").order("created_at", { ascending: false }),
   ]);
   const failure = addressesResult.error ?? wishlistResult.error ?? ordersResult.error ?? returnsResult.error;
@@ -64,6 +64,7 @@ export async function getAccountSnapshot(user: AccountUser): Promise<AccountSnap
     return {
       id: row.id,
       orderNumber: row.order_number,
+      trackingToken: row.tracking_token,
       status: row.status,
       paymentStatus: row.payment_status,
       totalInPaise: row.total_paise,

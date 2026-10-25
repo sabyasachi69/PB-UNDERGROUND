@@ -38,6 +38,24 @@ export type TrackingOrder = {
   deliveryPerson: { name: string; phone: string } | null;
 };
 
+export type PublicTrackingOrder = Pick<
+  TrackingOrder,
+  | "orderNumber"
+  | "firstName"
+  | "area"
+  | "zoneName"
+  | "status"
+  | "placedAt"
+  | "slotDateLabel"
+  | "slotLabel"
+  | "paymentMethod"
+  | "paymentStatus"
+  | "paymentProvider"
+  | "paymentExpiresAt"
+  | "events"
+  | "deliveryPerson"
+>;
+
 export type PaymentLaunch = {
   provider: "razorpay" | "simulator";
   attemptToken: string;

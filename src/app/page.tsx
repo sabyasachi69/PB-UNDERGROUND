@@ -20,7 +20,7 @@ const zones = [
 
 export default function Home() {
   return (
-    <main id="main-content">
+    <main className="home-page" id="main-content">
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-kicker">
           <span>Drop 001 / LPU</span>
@@ -42,6 +42,13 @@ export default function Home() {
           <span className="stitch-mark">PBU / 31.25°N</span>
         </div>
       </section>
+
+      <div className="signal-marquee" role="region" aria-label="Local makers, campus delivery, small drops, honest pricing">
+        <div aria-hidden="true">
+          <span>Local makers</span><i>✦</i><span>Campus delivery</span><i>✦</i><span>Small drops</span><i>✦</i><span>Honest pricing</span><i>✦</i>
+          <span>Local makers</span><i>✦</i><span>Campus delivery</span><i>✦</i><span>Small drops</span><i>✦</i><span>Honest pricing</span><i>✦</i>
+        </div>
+      </div>
 
       <section className="manifesto" id="manifesto" aria-labelledby="manifesto-title">
         <p className="eyebrow">01 / Why we exist</p>
@@ -131,7 +138,7 @@ export default function Home() {
               <li>See every fee before you agree</li>
               <li>Get a dated weekly statement</li>
             </ul>
-            <Link className="button button--paper" href="/about#suppliers">
+            <Link className="button button--paper" href="/partner">
               See how partnering works <ArrowRight aria-hidden="true" size={18} />
             </Link>
           </div>
@@ -163,7 +170,7 @@ export default function Home() {
           <Link className="button button--signal" href="/shop">
             Shop the drop <ArrowRight aria-hidden="true" size={18} />
           </Link>
-          <Link className="button button--ghost" href="/about#suppliers">
+          <Link className="button button--ghost" href="/partner">
             Partner with us
           </Link>
         </div>

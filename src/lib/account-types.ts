@@ -31,6 +31,7 @@ export type WishlistEntry = {
 export type AccountOrder = {
   id: string;
   orderNumber: string;
+  trackingToken?: string;
   status: string;
   paymentStatus: string;
   totalInPaise: number;

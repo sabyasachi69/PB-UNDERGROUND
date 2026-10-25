@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { products } from "@/data/products";
 import { getAvailableDeliverySlots } from "@/lib/commerce";
-import { createDemoOrder, getDemoStock, getDemoTrackingOrder } from "@/lib/demo-order-store";
+import { createDemoOrder, getDemoPublicTrackingOrder, getDemoStock, getDemoTrackingOrder } from "@/lib/demo-order-store";
 
 describe("COD order creation", () => {
   it("decrements stock exactly once for an idempotent request", () => {
@@ -26,8 +26,15 @@ describe("COD order creation", () => {
     expect(first.replayed).toBe(false);
     expect(replay.replayed).toBe(true);
     expect(replay.order.orderNumber).toBe(first.order.orderNumber);
+    expect(replay.trackingToken).toBe(first.trackingToken);
+    expect(first.trackingToken).not.toBe(first.order.orderNumber);
     expect(first.order.orderNumber).toMatch(/^PBU-261023-\d{4}$/);
     expect(getDemoStock().get(variant.id)).toBe(before! - 1);
     expect(getDemoTrackingOrder(first.order.orderNumber)?.firstName).toBe("Priya");
+    expect(getDemoPublicTrackingOrder(first.order.orderNumber, "wrong-token")).toBeNull();
+    const publicOrder = getDemoPublicTrackingOrder(first.order.orderNumber, first.trackingToken);
+    expect(publicOrder?.firstName).toBe("Priya");
+    expect(publicOrder).not.toHaveProperty("items");
+    expect(publicOrder).not.toHaveProperty("totalInPaise");
   });
 });

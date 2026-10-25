@@ -1,11 +1,12 @@
-import { getDemoTrackingOrder } from "@/lib/demo-order-store";
+import { getDemoPublicTrackingOrder } from "@/lib/demo-order-store";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(_request: Request, context: { params: Promise<{ number: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ number: string }> }) {
   const { number } = await context.params;
-  const order = getDemoTrackingOrder(number);
-  if (!order) return Response.json({ error: "Order not found." }, { status: 404 });
+  const token = new URL(request.url).searchParams.get("token");
+  const order = token ? getDemoPublicTrackingOrder(number, token) : null;
+  if (!order) return Response.json({ error: "This tracking link is invalid or has expired." }, { status: 404 });
   return Response.json({
     payment: {
       paymentMethod: order.paymentMethod,
