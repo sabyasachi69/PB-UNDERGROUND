@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowRight, MapPin, MoveRight } from "lucide-react";
+import { ArrowRight, MapPin, MoveRight } from "lucide-react";
 import Link from "next/link";
 
 import { ProductCard } from "@/components/product-card";
@@ -26,20 +26,27 @@ export default function Home() {
           <span>Drop 001 / LPU</span>
           <span>Made close. Delivered closer.</span>
         </div>
-        <h1 id="hero-title">
-          <span>PB</span>
-          <span>UNDERGROUND</span>
-        </h1>
-        <div className="hero-bottom">
-          <p>Local cloth. Campus fits. A new label moving at the speed of your day.</p>
-          <Link className="round-link" href="#manifesto" aria-label="Scroll to the story">
-            <ArrowDown aria-hidden="true" size={24} />
-          </Link>
+        <div className="hero-main">
+          <div className="hero-copy">
+            <p className="hero-overline">Local cloth / campus rhythm</p>
+            <h1 id="hero-title">Wear what<br /><em>moves</em> with you.</h1>
+            <p className="hero-intro">Everyday layers from makers around LPU. Find your fit, choose your drop point, and see the delivery fee before checkout.</p>
+            <div className="hero-actions">
+              <Link className="button button--signal" href="/shop">Shop the first drop <ArrowRight aria-hidden="true" size={18} /></Link>
+              <Link className="hero-secondary" href="#delivery">See delivery areas <ArrowRight aria-hidden="true" size={16} /></Link>
+            </div>
+          </div>
+          <div className="hero-art" aria-label="Graphic study of a garment label and stitched fabric, representing the sample collection" role="img">
+            <span className="hero-art-corner">PBU / 001</span>
+            <span className="hero-art-disc" aria-hidden="true" />
+            <span className="hero-art-cut" aria-hidden="true" />
+            <span className="hero-art-ticket">PB<br />UNDER<br />GROUND <small>Made close / Worn everywhere</small></span>
+            <span className="hero-art-caption">Concept art · product photography pending</span>
+          </div>
         </div>
-        <div className="hero-fabric" aria-hidden="true">
-          <span className="thread thread-one" />
-          <span className="thread thread-two" />
-          <span className="stitch-mark">PBU / 31.25°N</span>
+        <div className="hero-bottom">
+          <p>Independent makers. Useful pieces. Your campus.</p>
+          <span>01 / 07 &nbsp; ↓ &nbsp; Explore the story</span>
         </div>
       </section>
 
@@ -152,13 +159,13 @@ export default function Home() {
       </section>
 
       <section className="voices" aria-labelledby="voices-title">
-        <p className="eyebrow">06 / Early voices</p>
+        <p className="eyebrow">06 / What matters</p>
         <div className="voices-grid">
-          <h2 id="voices-title">“It should feel local before we even say it.”</h2>
+          <h2 id="voices-title">Know the piece. Know the price. Know where it goes.</h2>
           <div className="voice-card">
-            <span>[SAMPLE TESTIMONIAL]</span>
-            <p>“Show me what to pack, where it goes and what I earn. That is the whole decision.”</p>
-            <small>Sample supplier perspective / final quote pending permission</small>
+            <span>THE PB PROMISE</span>
+            <p>A good local shop deserves a wider counter. A student deserves a clear price and delivery window.</p>
+            <small>Explore the sample catalogue and delivery flow.</small>
           </div>
         </div>
       </section>

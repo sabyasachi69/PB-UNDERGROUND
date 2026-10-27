@@ -13,8 +13,8 @@ export default function ShopPage() {
   return (
     <main className="shop-page" id="main-content">
       <header className="shop-heading">
-        <div><p className="eyebrow">Drop 001 / Sample catalogue</p><h1>Useful pieces.<br />Close to home.</h1></div>
-        <p>Twelve sample pieces from four fictional local makers. Filter the cloth, share the URL, and find the variant that works.</p>
+        <div><p className="eyebrow">The collection / Drop 001</p><h1>Find your<br /><em>everyday</em> layer.</h1></div>
+        <p>Browse twelve concept pieces, compare fits and colours, and build a bag for your next campus day. Product imagery and makers are currently samples.</p>
       </header>
       <Suspense fallback={<p className="catalogue-loading">Opening the racks…</p>}><CatalogueClient /></Suspense>
     </main>
