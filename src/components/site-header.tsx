@@ -6,7 +6,7 @@ import { BagLink } from "@/components/bag-link";
 const navigation = [
   { href: "/shop", label: "Shop" },
   { href: "/about", label: "Story" },
-  { href: "/#delivery", label: "Delivery" },
+  { href: "/delivery", label: "Delivery" },
   { href: "/partner", label: "For suppliers" },
 ] as const;
 

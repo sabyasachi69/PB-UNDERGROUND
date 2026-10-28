@@ -4,9 +4,11 @@ An editorial, mobile-first storefront and supplier operating platform for a loca
 
 ## Status
 
-Phase 5 (customer accounts) is complete and Phase 6 (supplier side) is in progress. The repository now includes the branded storefront, catalogue, checkout and payments plus password authentication, secure cookie sessions, profile editing, five saved addresses, signed-in order history, one-click reorder, variant wishlists, photo-backed returns, sign-out and confirmed account deletion.
+This is a **demo, not a completed launch**. The storefront, sample catalogue, checkout/payment walkthrough, accounts, partner sales page and supplier walkthrough are implemented. Supplier operations, admin operations, connected database acceptance tests and launch checks remain open. See [the current phase matrix](./docs/PHASE_STATUS_2026-10-28.md) for the acceptance criteria and evidence.
 
-The first Phase 6 increment adds a complete supplier sales page at `/partner`, a tested live commission calculator, and an eight-step sample-data walkthrough at `/partner/demo` covering profile setup, product entry, order acceptance, packing, hand-off, settlement export and return approval. Supplier authentication, approval, connected product management, the live fulfillment queue and database-backed settlements remain in the next Phase 6 increments.
+The Phase 6 increment includes a supplier sales page at `/partner`, a tested commission calculator, and an eight-step sample-data walkthrough at `/partner/demo` covering profile setup, product entry, order acceptance, packing, hand-off, settlement export and return approval. A printable meeting card is available from the demo. Supplier authentication, approval, connected product management, the live fulfillment queue and database-backed settlements remain open.
+
+Public information routes include `/delivery`, `/contact`, and clearly marked draft policies under `/legal/*`. The contact form requires `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` and `CONTACT_TO_EMAIL`; without them it reports that sending is unavailable. These drafts require owner and qualified legal review before live sales.
 
 All fictional maker names, products, reviews, imagery, and commercial claims remain explicitly labelled `[SAMPLE]` until launch content is supplied.
 

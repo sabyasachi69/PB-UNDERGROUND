@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, BadgeCheck, Box, Check, Download, PackageCheck, RotateCcw, Store } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Box, Check, Download, PackageCheck, Printer, RotateCcw, Store } from "lucide-react";
 import Link from "next/link";
 
 import { formatInrFromPaise } from "@/lib/money";
@@ -28,7 +28,7 @@ export function SupplierDemo() {
       <header className="supplier-demo-topbar">
         <div><span>PB / SUPPLIER</span><strong>Guided demo</strong></div>
         <p><i aria-hidden="true" /> Sample data. Nothing here is live.</p>
-        <button type="button" onClick={reset}><RotateCcw aria-hidden="true" size={15} /> Reset demo</button>
+        <div className="supplier-demo-topbar-actions"><button type="button" onClick={() => window.print()}><Printer aria-hidden="true" size={15} /> Print meeting card</button><button type="button" onClick={reset}><RotateCcw aria-hidden="true" size={15} /> Reset demo</button></div>
       </header>
 
       <div className="supplier-demo-layout">
@@ -48,6 +48,7 @@ export function SupplierDemo() {
         </aside>
 
         <main className="supplier-demo-main" id="main-content">
+          <section className="supplier-meeting-card" aria-label="Printable supplier meeting script"><h1>PB UNDERGROUND / Six-minute supplier conversation</h1><ol><li><strong>0:00 · The idea</strong><span>Show the home page and partner overview. Local cloth reaches nearby campus buyers.</span></li><li><strong>0:45 · The numbers</strong><span>Enter the owner’s sales estimate in the calculator. Explain gross, commission and net.</span></li><li><strong>1:30 · The product</strong><span>Edit the sample business profile and list a product in the guided demo.</span></li><li><strong>3:00 · The order</strong><span>Accept, pack and hand off a sample order inside the response window.</span></li><li><strong>4:00 · The payout</strong><span>Open the statement and download the sample CSV.</span></li><li><strong>5:00 · A return</strong><span>Review the request and show the visible deduction.</span></li><li><strong>5:45 · Next step</strong><span>Invite the owner to apply with their first ten products. Confirm that the demo is sample data.</span></li></ol></section>
           <DemoStep state={state} setState={setState} move={move} reset={reset} />
           {state.step > 0 && state.step < 7 ? (
             <footer className="supplier-demo-controls">
