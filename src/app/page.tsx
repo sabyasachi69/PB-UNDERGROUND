@@ -41,7 +41,7 @@ export default function Home() {
             <span className="hero-art-disc" aria-hidden="true" />
             <span className="hero-art-cut" aria-hidden="true" />
             <span className="hero-art-ticket">PB<br />UNDER<br />GROUND <small>Made close / Worn everywhere</small></span>
-            <span className="hero-art-caption">Concept art · product photography pending</span>
+            <span className="hero-art-caption">Concept art · explore the sample looks below</span>
           </div>
         </div>
         <div className="hero-bottom">

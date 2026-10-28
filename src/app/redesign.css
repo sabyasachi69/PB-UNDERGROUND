@@ -11,6 +11,7 @@
 html { scroll-padding-top: 5rem; }
 body { background: var(--paper); }
 body::before { opacity: 0.12; }
+.page-progress { display: none; position: fixed; z-index: 30; top: 0; left: 0; width: 100%; height: 3px; pointer-events: none; background: var(--signal); transform-origin: left; }
 
 .site-header {
   min-height: 5rem;
@@ -62,7 +63,8 @@ body::before { opacity: 0.12; }
 .eyebrow { display: inline-flex; align-items: center; gap: 0.65rem; color: var(--signal); font-size: 0.75rem; letter-spacing: 0.1em; }
 .eyebrow::before { display: inline-block; width: 0.55rem; height: 0.55rem; background: currentColor; content: ""; transform: rotate(45deg); }
 .eyebrow--light { color: #f4f0e8; }
-.manifesto { background: var(--paper); }
+.manifesto { background: var(--paper); color: var(--ink); }
+.manifesto .eyebrow { color: var(--signal); }
 .manifesto h2 { max-width: 15ch; font-size: clamp(3.5rem, 7vw, 7.5rem); }
 .manifesto-note { border-color: var(--signal); }
 .manifesto-note p { color: var(--ink); }
@@ -108,7 +110,10 @@ body::before { opacity: 0.12; }
 .partners-grid > div > p { color: #fff0e5; }
 .voices { background: #e9e4da; }
 .voice-card { border-top: 2px solid var(--signal); }
-.closing { background: #121411; }
+.closing { background: #121411; color: var(--paper); border-top-color: #ffffff38; }
+.closing .eyebrow { color: #f66d60; }
+.closing .button--ghost { border-color: var(--paper); color: var(--paper); }
+.closing .button--ghost:hover { background: var(--paper); color: var(--ink); }
 .closing h2 { max-width: none; }
 .site-footer { background: #090b09; }
 .site-footer { grid-template-columns: 1.4fr 1fr 1fr; }
@@ -169,25 +174,50 @@ body::before { opacity: 0.12; }
   .product-visual.has-photo:hover .product-photo { transform: scale(1.055); }
   .product-visual.has-photo:hover .product-photo--crop { transform: scale(1.6); }
   .product-visual.has-photo:hover::before { opacity: 0.65; background: radial-gradient(circle at 72% 35%, #df1c1440, transparent 46%), linear-gradient(180deg, #00000066, transparent 26%, #00000030); }
-  .hero-art-ticket { animation: garment-float 18s ease-in-out infinite alternate; }
-  .hero-art-disc { animation: disc-drift 26s ease-in-out infinite alternate; }
 }
 
 @keyframes garment-float { from { transform: rotate(7deg) translateY(0); } to { transform: rotate(5.5deg) translateY(-12px); } }
 @keyframes disc-drift { from { transform: translate(17%, 8%) rotate(0); } to { transform: translate(14%, 5%) rotate(8deg); } }
+@keyframes settle-in { from { opacity: 0.55; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes art-arrive { from { opacity: 0.65; transform: translateY(22px) scale(0.975); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes story-rise { from { opacity: 0.78; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes rule-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes page-read { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-copy > * { animation: settle-in 720ms var(--ease-out) both; }
+  .hero-copy > :nth-child(2) { animation-delay: 90ms; }
+  .hero-copy > :nth-child(3) { animation-delay: 180ms; }
+  .hero-copy > :nth-child(4) { animation-delay: 270ms; }
+  .hero-art { animation: art-arrive 920ms var(--ease-out) both; }
+  .hero-art-ticket { animation: garment-float 18s ease-in-out infinite alternate; }
+  .hero-art-disc { animation: disc-drift 26s ease-in-out infinite alternate; }
+  .shop-heading h1, .category-hero h1, .editorial-hero h1, .information-hero h1, .partner-hero h1, .auth-story h1, .commerce-heading h1, .product-buy-panel h1 { animation: settle-in 720ms var(--ease-out) both; }
+  .mobile-menu[open] nav { animation: settle-in 280ms var(--ease-out) both; }
+}
+
+.hero-actions .button svg, .text-link svg, .closing-actions .button svg { transition: transform 220ms var(--ease-out); }
+.hero-actions .button:is(:hover, :focus-visible) svg, .text-link:is(:hover, :focus-visible) svg, .closing-actions .button:is(:hover, :focus-visible) svg { transform: translateX(5px); }
+.desktop-nav a:focus-visible::after, .site-footer nav a:focus-visible::after { transform: scaleX(1); transform-origin: left; }
+.zone-list summary > span:last-child { transition: transform 220ms var(--ease-out); }
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .page-progress { display: block; animation: page-read linear both; animation-timeline: scroll(root block); }
+  }
+}
 
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .manifesto h2, .journey .section-heading, .drops .section-heading, .delivery-copy, .partners-grid, .voices-grid, .closing h2 {
       animation: story-rise linear both;
       animation-timeline: view();
-      animation-range: entry 0% cover 30%;
+      animation-range: entry 0% cover 34%;
     }
-    .product-card { animation: story-rise linear both; animation-timeline: view(); animation-range: entry 0% cover 22%; }
+    .product-card { animation: story-rise linear both; animation-timeline: view(); animation-range: entry 0% cover 26%; }
+    .journey-grid li::before { position: absolute; top: -2px; left: 0; width: 100%; height: 2px; content: ""; background: #f66d60; transform-origin: left; animation: rule-draw linear both; animation-timeline: view(); animation-range: entry 0% cover 40%; }
   }
 }
-
-@keyframes story-rise { from { opacity: 0.76; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 .shop-heading, .category-hero, .partner-hero, .account-hero, .auth-story { background-color: #171a16; background-image: radial-gradient(circle at 82% 38%, #9f302b38, transparent 45%), repeating-linear-gradient(90deg, transparent 0 19.9%, #ffffff08 20% 20.07%); }
 .shop-heading { color: var(--paper); }
@@ -250,11 +280,12 @@ button, summary { touch-action: manipulation; }
 
 @media (prefers-reduced-motion: reduce) {
   .product-visual::after, .product-photo { transition: none; }
-  .hero-art-ticket, .hero-art-disc { animation: none; }
+  .page-progress { display: none; }
+  .hero-art-ticket, .hero-art-disc, .hero-copy > *, .hero-art, .shop-heading h1, .category-hero h1, .editorial-hero h1, .information-hero h1, .partner-hero h1, .auth-story h1, .commerce-heading h1, .product-buy-panel h1, .mobile-menu[open] nav, .manifesto h2, .journey .section-heading, .drops .section-heading, .delivery-copy, .partners-grid, .voices-grid, .closing h2, .product-card, .journey-grid li::before { animation: none !important; }
 }
 
 @media print {
-  .site-header, .site-footer, .supplier-demo-topbar, .supplier-demo-sidebar, .supplier-demo-main > :not(.supplier-meeting-card) { display: none !important; }
+  .site-header, .site-footer, .page-progress, .supplier-demo-topbar, .supplier-demo-sidebar, .supplier-demo-main > :not(.supplier-meeting-card) { display: none !important; }
   body, .supplier-demo-shell, .supplier-demo-main { background: white !important; color: black !important; }
   .supplier-demo-layout, .supplier-demo-main { display: block; padding: 0; }
   .supplier-meeting-card { display: block; max-width: 720px; margin: 0 auto; padding: 1.5rem; }

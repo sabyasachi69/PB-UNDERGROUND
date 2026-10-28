@@ -28,6 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Skip to content
         </a>
         <SiteHeader />
+        <div className="page-progress" aria-hidden="true" />
         {children}
         <SiteFooter />
       </body>
