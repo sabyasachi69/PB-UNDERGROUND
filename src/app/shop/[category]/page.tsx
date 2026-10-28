@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { CatalogueClient } from "@/components/catalogue-client";
+import { HeaderScene } from "@/components/header-scene";
 import { categories, getCategoryBySlug } from "@/data/products";
 
 type CategoryPageProps = { params: Promise<{ category: string }> };
@@ -25,7 +26,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <main className="shop-page category-page" id="main-content">
-      <header className={`category-hero category-hero--${category.slug}`}>
+      <header className={`category-hero scene-host category-hero--${category.slug}`}>
+        <HeaderScene kind="collection" />
         <p className="eyebrow">Category / {category.name}</p><h1>{category.name}</h1>
         <div><p>{category.description}</p><span>{category.note}</span></div>
       </header>

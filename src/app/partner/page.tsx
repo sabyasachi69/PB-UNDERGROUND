@@ -3,6 +3,7 @@ import { ArrowRight, BadgeCheck, Banknote, Boxes, Clock3, ShieldCheck, Store } f
 import Link from "next/link";
 
 import { SupplierEarningsCalculator } from "@/components/supplier-earnings-calculator";
+import { HeaderScene } from "@/components/header-scene";
 
 export const metadata: Metadata = {
   title: "Partner with us",
@@ -26,7 +27,8 @@ const objections = [
 export default function PartnerPage() {
   return (
     <main className="partner-page" id="main-content">
-      <header className="partner-hero">
+      <header className="partner-hero scene-host">
+        <HeaderScene kind="maker" />
         <div>
           <p className="eyebrow eyebrow--light">For local cloth and garment businesses</p>
           <h1>Your cloth.<br />Our delivery.<br /><em>Their campus.</em></h1>

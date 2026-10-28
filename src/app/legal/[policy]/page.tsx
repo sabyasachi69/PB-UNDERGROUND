@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { HeaderScene } from "@/components/header-scene";
 
 const policies = {
   terms: { title: "Terms of use", sections: [
@@ -42,5 +43,5 @@ export default async function PolicyPage({ params }: PolicyPageProps) {
   const { policy } = await params;
   const data = policies[policy as keyof typeof policies];
   if (!data) notFound();
-  return <main className="information-page" id="main-content"><header className="information-hero"><p className="eyebrow eyebrow--light">Legal / owner review required</p><h1>{data.title}.</h1><p>Draft for review by a qualified lawyer. This page describes the current demo design; it is not the final policy for live orders.</p></header><div className="legal-content"><p className="draft-note">[DRAFT FOR REVIEW] Complete [REGISTERED BUSINESS NAME], [BUSINESS ADDRESS], [GSTIN IF APPLICABLE], [SUPPORT EMAIL] and [PRIVACY CONTACT EMAIL]. Confirm every commercial and operational term before launch.</p>{data.sections.map(([heading, body]) => <section key={heading}><h2>{heading}</h2><p>{body}</p></section>)}<Link className="button button--ink" href="/contact">Contact and support</Link></div></main>;
+  return <main className="information-page" id="main-content"><header className="information-hero information-hero--legal scene-host"><HeaderScene kind="document" /><p className="eyebrow eyebrow--light">Legal / owner review required</p><h1>{data.title}.</h1><p>Draft for review by a qualified lawyer. This page describes the current demo design; it is not the final policy for live orders.</p></header><div className="legal-content"><p className="draft-note">[DRAFT FOR REVIEW] Complete [REGISTERED BUSINESS NAME], [BUSINESS ADDRESS], [GSTIN IF APPLICABLE], [SUPPORT EMAIL] and [PRIVACY CONTACT EMAIL]. Confirm every commercial and operational term before launch.</p>{data.sections.map(([heading, body]) => <section key={heading}><h2>{heading}</h2><p>{body}</p></section>)}<Link className="button button--ink" href="/contact">Contact and support</Link></div></main>;
 }

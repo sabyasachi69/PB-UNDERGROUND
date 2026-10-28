@@ -9,6 +9,7 @@ import type { AccountOrder, AccountSnapshot } from "@/lib/account-types";
 import { readCart, writeCart } from "@/lib/cart";
 import { STORE_SETTINGS } from "@/lib/commerce";
 import { formatInrFromPaise } from "@/lib/money";
+import { HeaderScene } from "@/components/header-scene";
 
 type Panel = "orders" | "addresses" | "wishlist" | "returns" | "profile";
 
@@ -180,7 +181,8 @@ export function AccountDashboard() {
 
   return (
     <>
-      <header className="account-hero">
+      <header className="account-hero scene-host">
+        <HeaderScene kind="bag" />
         <div><p className="eyebrow">Customer account / {account.runtime === "demo" ? "Local demo" : "Supabase"}</p><h1>Morning,<br />{account.user.displayName.split(" ")[0]}.</h1></div>
         <div><p>Orders, saved gates and the pieces you meant to come back for.</p><button type="button" onClick={signOut}><LogOut aria-hidden="true" size={16} /> Sign out</button></div>
       </header>

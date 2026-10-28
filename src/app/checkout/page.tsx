@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { CheckoutClient } from "@/components/checkout-client";
+import { HeaderScene } from "@/components/header-scene";
 
 export const metadata: Metadata = {
   title: "Checkout",
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 export default function CheckoutPage() {
   return (
     <main className="commerce-page checkout-page" id="main-content">
-      <header className="checkout-header"><Link href="/cart"><ArrowLeftIcon /> Back to bag</Link><span>Secure sample checkout / COD + UPI test mode</span></header>
+      <header className="checkout-header scene-host"><HeaderScene kind="bag" /><Link href="/cart"><ArrowLeftIcon /> Back to bag</Link><span>Secure sample checkout / COD + UPI test mode</span></header>
       <Suspense fallback={<div className="checkout-loading">Preparing secure checkout…</div>}><CheckoutClient /></Suspense>
     </main>
   );

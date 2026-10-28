@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import type { PublicTrackingOrder } from "@/lib/order-types";
+import { HeaderScene } from "@/components/header-scene";
 
 export function OrderTracking({ orderNumber, trackingToken }: { orderNumber: string; trackingToken: string }) {
   const [order, setOrder] = useState<PublicTrackingOrder | null>(null);
@@ -71,7 +72,8 @@ export function OrderTracking({ orderNumber, trackingToken }: { orderNumber: str
 
   return (
     <>
-      <header className="tracking-hero">
+      <header className="tracking-hero scene-host">
+        <HeaderScene kind="delivery" />
         <div><p className="eyebrow">Order {order.paymentStatus === "paid" || order.paymentStatus === "due_on_delivery" ? "confirmed" : "received"} / {order.paymentMethod === "cod" ? "Cash on Delivery" : "UPI"}</p><h1>{order.paymentStatus === "failed" ? <>Payment<br />didn’t land.</> : <>It’s on<br />the board.</>}</h1></div>
         <div className="tracking-number"><span>Order number</span><strong>{order.orderNumber}</strong><button type="button" onClick={shareTracking}><Share2 aria-hidden="true" size={16} /> Share tracking</button><p role="status">{shareStatus}</p></div>
       </header>

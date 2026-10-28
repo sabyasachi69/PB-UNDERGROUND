@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 import { STORE_SETTINGS } from "@/lib/commerce";
 import { formatInrFromPaise } from "@/lib/money";
+import { HeaderScene } from "@/components/header-scene";
 
 export const metadata: Metadata = {
   title: "Delivery and returns",
@@ -21,7 +22,8 @@ const questions = [
 export default function DeliveryPage() {
   return (
     <main className="information-page" id="main-content">
-      <header className="information-hero">
+      <header className="information-hero information-hero--delivery scene-host">
+        <HeaderScene kind="delivery" />
         <p className="eyebrow eyebrow--light">Delivery / sample operating plan</p>
         <h1>From this side<br />of town to <em>your gate.</em></h1>
         <p>Choose your area, see the fee and pick an available slot before placing your order. The zones below are demo settings awaiting owner confirmation.</p>

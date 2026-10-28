@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 import "./commerce.css";
 import "./redesign.css";
+import "./header-scenes.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://pb-underground.vercel.app"),

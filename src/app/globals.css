@@ -1158,9 +1158,9 @@ summary {
 .category-hero { position: relative; min-height: 36rem; padding: clamp(8rem, 13vw, 12rem) var(--page-gutter) 4rem; overflow: hidden; background: var(--ink); color: var(--paper); }
 .category-hero::after { position: absolute; right: -8%; bottom: -35%; width: min(50vw, 40rem); aspect-ratio: 1; border: 1px solid rgb(244 241 234 / 24%); content: ""; background: repeating-linear-gradient(78deg, transparent 0 12px, rgb(244 241 234 / 5%) 12px 13px); transform: rotate(24deg); }
 .category-hero h1 { margin: 0; font-family: var(--display); font-size: clamp(5rem, 16vw, 15rem); font-weight: 780; line-height: 0.74; letter-spacing: -0.09em; text-transform: uppercase; }
-.category-hero > div { position: relative; z-index: 1; display: flex; max-width: 52rem; margin: 4rem 0 0 auto; justify-content: space-between; border-top: 1px solid rgb(244 241 234 / 30%); gap: 2rem; }
-.category-hero > div p { max-width: 30rem; }
-.category-hero > div span { padding-top: 1rem; color: rgb(244 241 234 / 60%); font: 500 0.68rem var(--mono); text-transform: uppercase; }
+.category-hero > div:not(.header-scene) { position: relative; z-index: 1; display: flex; max-width: 52rem; margin: 4rem 0 0 auto; justify-content: space-between; border-top: 1px solid rgb(244 241 234 / 30%); gap: 2rem; }
+.category-hero > div:not(.header-scene) p { max-width: 30rem; }
+.category-hero > div:not(.header-scene) span { padding-top: 1rem; color: rgb(244 241 234 / 60%); font: 500 0.68rem var(--mono); text-transform: uppercase; }
 .category-page .catalogue { padding-top: 2rem; }
 
 .product-page { padding-top: 5.5rem; }

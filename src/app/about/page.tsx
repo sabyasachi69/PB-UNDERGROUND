@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { HeaderScene } from "@/components/header-scene";
 
 export const metadata: Metadata = {
   title: "Our story",
@@ -10,7 +11,8 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main className="editorial-page" id="main-content">
-      <header className="editorial-hero">
+      <header className="editorial-hero editorial-hero--story scene-host">
+        <HeaderScene kind="fabric" />
         <p className="eyebrow">Our story / Draft 01</p>
         <h1>A shorter route for better cloth.</h1>
         <p className="editorial-lede">
