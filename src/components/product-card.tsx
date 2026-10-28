@@ -1,9 +1,11 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import { QuickAdd } from "@/components/quick-add";
 import { WishlistButton } from "@/components/wishlist-button";
 import { isProductInStock, type Product } from "@/data/products";
+import { demoProductImages } from "@/data/demo-images";
 import { formatInrFromPaise } from "@/lib/money";
 
 type ProductCardProps = { product: Product; index: number };
@@ -11,12 +13,13 @@ type ProductCardProps = { product: Product; index: number };
 export function ProductCard({ product, index }: ProductCardProps) {
   const inStock = isProductInStock(product);
   const wishVariant = product.variants.find((variant) => variant.stockQty > 0) ?? product.variants[0];
+  const conceptImage = demoProductImages[product.slug];
   return (
     <article className="product-card" id={product.slug}>
-      <Link className={`product-visual product-visual--${product.palette}`} href={`/product/${product.slug}`}>
+      <Link className={`product-visual product-visual--${product.palette} ${conceptImage ? "has-photo" : ""}`} href={`/product/${product.slug}`}>
+        {conceptImage ? <Image className="product-photo" src={conceptImage.src} alt={conceptImage.alt} fill sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 32vw" /> : <span className="product-silhouette" aria-hidden="true" />}
         <span className="product-index">{String(index + 1).padStart(2, "0")}</span>
-        <span className="sample-asset">Sample art direction</span>
-        <span className="product-silhouette" aria-hidden="true" />
+        <span className="sample-asset">{conceptImage ? "AI concept image" : "Sample art direction"}</span>
         {!inStock ? <span className="stock-badge">Sold out</span> : null}
       </Link>
       <WishlistButton variantId={wishVariant.id} compact />

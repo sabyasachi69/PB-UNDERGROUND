@@ -2,9 +2,11 @@
 
 import { ArrowRight, Bookmark, Minus, Plus, RotateCcw, Tag, Trash2, Truck } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
 
 import { products } from "@/data/products";
+import { demoProductImages } from "@/data/demo-images";
 import { removeCartItem, restoreSavedCartItem, saveCartItemForLater, updateCartItem, type CartLine } from "@/lib/cart";
 import { STORE_SETTINGS, type CartQuote } from "@/lib/commerce";
 import { formatInrFromPaise } from "@/lib/money";
@@ -91,7 +93,8 @@ export function CartClient() {
         </div>
         {quote?.lines.map((line, index) => (
           <article className="cart-line" key={line.variantId}>
-            <Link className={`cart-line-art product-visual product-visual--${line.palette}`} href={`/product/${line.productSlug}`} aria-label={`View ${line.productName}`}>
+            <Link className={`cart-line-art product-visual product-visual--${line.palette} ${demoProductImages[line.productSlug] ? "has-photo" : ""}`} href={`/product/${line.productSlug}`} aria-label={`View ${line.productName}`}>
+              {demoProductImages[line.productSlug] ? <Image className="product-photo" src={demoProductImages[line.productSlug].src} alt="" fill sizes="128px" /> : null}
               <span>{String(index + 1).padStart(2, "0")}</span>
             </Link>
             <div className="cart-line-copy">

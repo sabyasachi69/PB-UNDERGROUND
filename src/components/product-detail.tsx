@@ -2,9 +2,11 @@
 
 import { Check, Maximize2, ShieldCheck, Star, Truck, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { FormEvent, useRef, useState } from "react";
 
 import type { Product } from "@/data/products";
+import { demoProductImages } from "@/data/demo-images";
 import { addCartItem } from "@/lib/cart";
 import { formatInrFromPaise } from "@/lib/money";
 import { WishlistButton } from "@/components/wishlist-button";
@@ -19,6 +21,7 @@ const deliveryWindows = {
 } as const;
 
 export function ProductDetail({ product }: ProductDetailProps) {
+  const conceptImage = demoProductImages[product.slug];
   const firstVariant = product.variants.find((variant) => variant.stockQty > 0) ?? product.variants[0];
   const [selectedColour, setSelectedColour] = useState(firstVariant.colour.name);
   const [selectedSize, setSelectedSize] = useState(firstVariant.size);
@@ -65,25 +68,25 @@ export function ProductDetail({ product }: ProductDetailProps) {
       <div className="product-detail">
         <section className="product-gallery" aria-label={`${product.name} sample gallery`}>
           <button
-            className={`product-gallery-main product-visual product-visual--${product.palette} ${zoomed ? "is-zoomed" : ""}`}
+            className={`product-gallery-main product-visual product-visual--${product.palette} ${conceptImage ? "has-photo" : ""} ${zoomed ? "is-zoomed" : ""}`}
             type="button"
             onClick={() => setZoomed((value) => !value)}
             aria-pressed={zoomed}
           >
-            <span className="product-silhouette" aria-hidden="true" />
-            <span className="sample-asset">{product.imageAlts[selectedImage]}</span>
+            {conceptImage ? <Image className={`product-photo ${selectedImage === 1 ? "product-photo--crop" : ""}`} src={conceptImage.src} alt={selectedImage === 1 ? `${conceptImage.alt}, editorial crop` : conceptImage.alt} fill sizes="(max-width: 900px) 100vw, 52vw" priority /> : <span className="product-silhouette" aria-hidden="true" />}
+            <span className="sample-asset">{conceptImage ? "AI concept image" : product.imageAlts[selectedImage]}</span>
             <span className="zoom-label"><Maximize2 aria-hidden="true" size={16} /> {zoomed ? "Close detail" : "Inspect cloth"}</span>
           </button>
           <div className="gallery-thumbs" aria-label="Choose gallery view">
             {product.imageAlts.map((alt, index) => (
               <button
-                className={`product-visual--${product.palette} ${selectedImage === index ? "is-active" : ""}`}
+                className={`product-visual--${product.palette} ${conceptImage ? "has-photo" : ""} ${selectedImage === index ? "is-active" : ""}`}
                 type="button"
                 onClick={() => { setSelectedImage(index); setZoomed(false); }}
                 aria-label={`Show ${alt}`}
                 aria-pressed={selectedImage === index}
                 key={alt}
-              ><span aria-hidden="true">0{index + 1}</span></button>
+              >{conceptImage ? <Image className={`product-photo ${index === 1 ? "product-photo--crop" : ""}`} src={conceptImage.src} alt="" fill sizes="(max-width: 900px) 46vw, 14vw" /> : null}<span aria-hidden="true">0{index + 1}</span></button>
             ))}
           </div>
         </section>
@@ -117,6 +120,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               ))}
             </div>
           </fieldset>
+          {conceptImage ? <p className="concept-colour-note">AI demo image shows {product.colours[0].name}. Other colour options are sample data and may look different.</p> : null}
 
           <fieldset className="variant-group size-options">
             <legend>Size</legend>
@@ -187,13 +191,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
       </div>
 
       <section className="reviews-section" aria-labelledby="reviews-title">
-        <div><p className="eyebrow">Verified wear</p><h2 id="reviews-title">What arrived after the order.</h2></div>
+        <div><p className="eyebrow">Sample feedback layout</p><h2 id="reviews-title">How buyer feedback could look.</h2></div>
         {product.reviews.length ? product.reviews.map((review) => (
           <article className="review-card" key={review.id}>
             <div aria-label={`${review.rating} out of 5 stars`}>
               {Array.from({ length: review.rating }, (_, index) => <Star aria-hidden="true" fill="currentColor" size={15} key={index} />)}
             </div>
-            <blockquote>“{review.body}”</blockquote>
+            <blockquote><span className="sample-review-label">[SAMPLE REVIEW]</span> “{review.body}”</blockquote>
             <p>{review.author} {review.verified ? <span><ShieldCheck aria-hidden="true" size={14} /> Verified buyer</span> : null}</p>
           </article>
         )) : <p className="reviews-empty">No reviews yet. Only verified buyers can leave one.</p>}

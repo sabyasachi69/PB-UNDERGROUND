@@ -12,6 +12,8 @@ Public information routes include `/delivery`, `/contact`, and clearly marked dr
 
 All fictional maker names, products, reviews, imagery, and commercial claims remain explicitly labelled `[SAMPLE]` until launch content is supplied.
 
+Four featured products now use clearly labelled AI concept model imagery. See [demo image provenance](./docs/DEMO_IMAGERY.md) for the asset paths, prompts and replacement rule.
+
 The latest architecture and connectivity review is available as a [downloadable technical audit](./output/pdf/PB_UNDERGROUND_Technical_Audit.pdf).
 
 ## Local setup

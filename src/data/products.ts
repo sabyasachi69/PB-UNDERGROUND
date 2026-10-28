@@ -72,8 +72,8 @@ function makeVariants(
   );
 }
 
-const verifiedReview = (slug: string, body: string): readonly ProductReview[] => [
-  { id: `${slug}-review-1`, author: "Aarav K.", rating: 5, body, verified: true },
+const sampleReview = (slug: string, body: string): readonly ProductReview[] => [
+  { id: `${slug}-review-1`, author: "[SAMPLE] Aarav K.", rating: 5, body, verified: false },
 ];
 
 const SIZE_ALPHA = ["XS", "S", "M", "L", "XL"] as const;
@@ -130,7 +130,7 @@ const productSeeds = [
     isFeatured: true,
     popularity: 96,
     releasedAt: "2026-10-18",
-    reviews: verifiedReview("gate-seven-hoodie", "Heavy without feeling stiff. The hood sits properly and delivery reached my hostel the same evening."),
+    reviews: sampleReview("gate-seven-hoodie", "Heavy without feeling stiff. The hood sits properly and delivery reached my hostel the same evening."),
   },
   {
     slug: "lecture-hall-overshirt",
@@ -154,7 +154,7 @@ const productSeeds = [
     isFeatured: true,
     popularity: 91,
     releasedAt: "2026-10-12",
-    reviews: verifiedReview("lecture-hall-overshirt", "The pockets are actually useful and the fit works as a shirt or a light layer."),
+    reviews: sampleReview("lecture-hall-overshirt", "The pockets are actually useful and the fit works as a shirt or a light layer."),
   },
   {
     slug: "two-am-cargo",
@@ -178,7 +178,7 @@ const productSeeds = [
     isFeatured: true,
     popularity: 98,
     releasedAt: "2026-10-15",
-    reviews: verifiedReview("two-am-cargo", "The waist adjuster saved me from needing a belt. Good pocket depth too."),
+    reviews: sampleReview("two-am-cargo", "The waist adjuster saved me from needing a belt. Good pocket depth too."),
   },
   {
     slug: "everyday-heavy-tee",
@@ -202,7 +202,7 @@ const productSeeds = [
     isFeatured: true,
     popularity: 89,
     releasedAt: "2026-10-09",
-    reviews: verifiedReview("everyday-heavy-tee", "The collar has not gone loose after washing, which is exactly what I wanted."),
+    reviews: sampleReview("everyday-heavy-tee", "The collar has not gone loose after washing, which is exactly what I wanted."),
   },
   {
     slug: "studio-knit-polo",
@@ -227,7 +227,7 @@ const productSeeds = [
     isFeatured: false,
     popularity: 82,
     releasedAt: "2026-10-05",
-    reviews: verifiedReview("studio-knit-polo", "Looks sharp for presentations but is still comfortable enough for a full day."),
+    reviews: sampleReview("studio-knit-polo", "Looks sharp for presentations but is still comfortable enough for a full day."),
   },
   {
     slug: "platform-chore-jacket",
@@ -251,7 +251,7 @@ const productSeeds = [
     isFeatured: false,
     popularity: 86,
     releasedAt: "2026-09-28",
-    reviews: verifiedReview("platform-chore-jacket", "Solid cloth and neat stitching. It feels like something I will keep for years."),
+    reviews: sampleReview("platform-chore-jacket", "Solid cloth and neat stitching. It feels like something I will keep for years."),
   },
   {
     slug: "north-gate-denim",
@@ -275,7 +275,7 @@ const productSeeds = [
     isFeatured: false,
     popularity: 93,
     releasedAt: "2026-09-22",
-    reviews: verifiedReview("north-gate-denim", "The rise is comfortable in class and the leg is straight without being too wide."),
+    reviews: sampleReview("north-gate-denim", "The rise is comfortable in class and the leg is straight without being too wide."),
   },
   {
     slug: "corridor-rugby-shirt",
@@ -299,7 +299,7 @@ const productSeeds = [
     isFeatured: false,
     popularity: 79,
     releasedAt: "2026-09-18",
-    reviews: verifiedReview("corridor-rugby-shirt", "The fabric feels substantial and the shorter length works well with cargos."),
+    reviews: sampleReview("corridor-rugby-shirt", "The fabric feels substantial and the shorter length works well with cargos."),
   },
   {
     slug: "library-quarter-zip",
@@ -323,7 +323,7 @@ const productSeeds = [
     isFeatured: false,
     popularity: 88,
     releasedAt: "2026-10-20",
-    reviews: verifiedReview("library-quarter-zip", "Warm enough for the library AC and the zip does not scratch my neck."),
+    reviews: sampleReview("library-quarter-zip", "Warm enough for the library AC and the zip does not scratch my neck."),
   },
   {
     slug: "common-room-jogger",
@@ -347,7 +347,7 @@ const productSeeds = [
     isFeatured: false,
     popularity: 84,
     releasedAt: "2026-09-14",
-    reviews: verifiedReview("common-room-jogger", "Comfortable but still clean enough to wear outside the hostel."),
+    reviews: sampleReview("common-room-jogger", "Comfortable but still clean enough to wear outside the hostel."),
   },
   {
     slug: "workshop-tote",
@@ -371,7 +371,7 @@ const productSeeds = [
     isFeatured: false,
     popularity: 76,
     releasedAt: "2026-09-08",
-    reviews: verifiedReview("workshop-tote", "My 15-inch laptop fits with space left, and the handle stitching feels secure."),
+    reviews: sampleReview("workshop-tote", "My 15-inch laptop fits with space left, and the handle stitching feels secure."),
   },
   {
     slug: "canteen-cap",
