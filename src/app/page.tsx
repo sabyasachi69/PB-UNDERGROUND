@@ -1,6 +1,7 @@
 import { ArrowRight, MapPin, MoveRight } from "lucide-react";
 import Link from "next/link";
 
+import { HeroArtifact } from "@/components/hero-artifact";
 import { ProductCard } from "@/components/product-card";
 import { featuredProducts } from "@/data/products";
 
@@ -36,13 +37,7 @@ export default function Home() {
               <Link className="hero-secondary" href="#delivery">See delivery areas <ArrowRight aria-hidden="true" size={16} /></Link>
             </div>
           </div>
-          <div className="hero-art" aria-label="Graphic study of a garment label and stitched fabric, representing the sample collection" role="img">
-            <span className="hero-art-corner">PBU / 001</span>
-            <span className="hero-art-disc" aria-hidden="true" />
-            <span className="hero-art-cut" aria-hidden="true" />
-            <span className="hero-art-ticket">PB<br />UNDER<br />GROUND <small>Made close / Worn everywhere</small></span>
-            <span className="hero-art-caption">Concept art · explore the sample looks below</span>
-          </div>
+          <HeroArtifact />
         </div>
         <div className="hero-bottom">
           <p>Independent makers. Useful pieces. Your campus.</p>
