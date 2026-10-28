@@ -69,6 +69,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
         <section className="product-gallery" aria-label={`${product.name} sample gallery`}>
           <button
             className={`product-gallery-main product-visual product-visual--${product.palette} ${conceptImage ? "has-photo" : ""} ${zoomed ? "is-zoomed" : ""}`}
+            data-product={product.slug}
             type="button"
             onClick={() => setZoomed((value) => !value)}
             aria-pressed={zoomed}
@@ -83,7 +84,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 className={`product-visual--${product.palette} ${conceptImage ? "has-photo" : ""} ${selectedImage === index ? "is-active" : ""}`}
                 type="button"
                 onClick={() => { setSelectedImage(index); setZoomed(false); }}
-                aria-label={`Show ${alt}`}
+                aria-label={conceptImage ? index === 0 ? "Show full AI concept image" : "Show closer crop of AI concept image" : `Show ${alt}`}
                 aria-pressed={selectedImage === index}
                 key={alt}
               >{conceptImage ? <Image className={`product-photo ${index === 1 ? "product-photo--crop" : ""}`} src={conceptImage.src} alt="" fill sizes="(max-width: 900px) 46vw, 14vw" /> : null}<span aria-hidden="true">0{index + 1}</span></button>
