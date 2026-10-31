@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import { categories, getProductBySlug, isProductInStock, products } from "../src/data/products";
 
 describe("sample catalogue", () => {
-  it("contains twelve uniquely addressable sample products", () => {
-    expect(products).toHaveLength(12);
+  it("contains forty uniquely addressable sample products", () => {
+    expect(products).toHaveLength(40);
     expect(new Set(products.map((product) => product.slug)).size).toBe(products.length);
     expect(products.every((product) => getProductBySlug(product.slug) === product)).toBe(true);
   });

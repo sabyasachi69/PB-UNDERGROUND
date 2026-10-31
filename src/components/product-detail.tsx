@@ -113,7 +113,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <button
                   type="button"
                   key={colour.name}
-                  onClick={() => { setSelectedColour(colour.name); setAdded(false); }}
+                  onClick={() => {
+                    const sameSize = product.variants.find((variant) => variant.colour.name === colour.name && variant.size === selectedSize && variant.stockQty > 0);
+                    const availableSize = sameSize ?? product.variants.find((variant) => variant.colour.name === colour.name && variant.stockQty > 0);
+                    if (availableSize) setSelectedSize(availableSize.size);
+                    setSelectedColour(colour.name);
+                    setAdded(false);
+                  }}
                   aria-pressed={selectedColour === colour.name}
                   aria-label={`Choose ${colour.name}`}
                   style={{ "--swatch": colour.hex } as React.CSSProperties}
@@ -121,7 +127,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               ))}
             </div>
           </fieldset>
-          {conceptImage ? <p className="concept-colour-note">AI demo image shows {product.colours[0].name}. Other colour options are sample data and may look different.</p> : null}
+          {conceptImage ? <p className="concept-colour-note">AI concept photo shows {product.colours[0].name}. {selectedColour === product.colours[0].name ? "Other colours are sample options." : `${selectedColour} is a sample option and is not pictured.`}</p> : null}
 
           <fieldset className="variant-group size-options">
             <legend>Size</legend>

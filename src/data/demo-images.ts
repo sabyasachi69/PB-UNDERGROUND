@@ -1,4 +1,6 @@
 /** AI-generated concept photography. Replace with approved supplier photos before launch. */
+import expandedConcepts from "@/data/catalogue-expansion.json";
+
 export const demoProductImages: Readonly<Record<string, { src: string; alt: string }>> = {
   "gate-seven-hoodie": {
     src: "/images/demo/gate-seven-hoodie.webp",
@@ -48,4 +50,11 @@ export const demoProductImages: Readonly<Record<string, { src: string; alt: stri
     src: "/images/demo/canteen-cap.webp",
     alt: "AI demo image of an adult model wearing a washed signal-red cap",
   },
+  ...Object.fromEntries(expandedConcepts.map((concept) => [
+    concept.slug,
+    {
+      src: `/images/demo/${concept.slug}.webp`,
+      alt: `AI concept photograph of ${concept.garment} in ${concept.primary.name.toLowerCase()}`,
+    },
+  ])),
 };

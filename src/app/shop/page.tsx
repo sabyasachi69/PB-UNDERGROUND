@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { CatalogueClient } from "@/components/catalogue-client";
 import { HeaderScene } from "@/components/header-scene";
+import { products } from "@/data/products";
 
 export const metadata: Metadata = {
   title: "Shop",
@@ -16,7 +17,7 @@ export default function ShopPage() {
       <header className="shop-heading scene-host shop-heading--collection">
         <HeaderScene kind="collection" />
         <div><p className="eyebrow">The collection / Drop 001</p><h1>Find your<br /><em>everyday</em> layer.</h1></div>
-        <p>Browse twelve concept pieces, compare fits and colours, and build a bag for your next campus day. Product imagery and makers are currently samples.</p>
+        <p>Browse {products.length} concept pieces, compare fits and colours, and build a bag for your next campus day. Product imagery and makers are currently samples.</p>
       </header>
       <Suspense fallback={<p className="catalogue-loading">Opening the racks…</p>}><CatalogueClient /></Suspense>
     </main>

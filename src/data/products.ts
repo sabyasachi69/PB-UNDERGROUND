@@ -399,11 +399,61 @@ const productSeeds = [
   },
 ] as const;
 
-export const products: readonly Product[] = productSeeds.map((product) => ({
-  ...product,
-  colours: product.colourStocks.map(({ name, hex }) => ({ name, hex })),
-  variants: makeVariants(product.slug, product.sizes, product.colourStocks, product.priceInPaise),
-}));
+const oneSizeConcepts = new Set(["studio-canvas-tote", "five-panel-cap", "ribbed-daily-beanie"]);
+const alphaBottomConcepts = new Set(["campus-track-pant", "yard-utility-short"]);
+const conceptSuppliers: Record<string, { slug: string; name: string }> = {
+  layers: { slug: "singh-cloth-house", name: "[SAMPLE] Singh Cloth House" },
+  shirts: { slug: "bhatia-studio", name: "[SAMPLE] Bhatia Studio" },
+  bottoms: { slug: "gupta-garments", name: "[SAMPLE] Gupta Garments" },
+  essentials: { slug: "north-loom", name: "[SAMPLE] North Loom" },
+};
+
+const expandedProducts: Product[] = expandedConcepts.map((concept, index) => {
+  const sizes = oneSizeConcepts.has(concept.slug)
+    ? ["One size"]
+    : concept.categorySlug === "bottoms" && !alphaBottomConcepts.has(concept.slug)
+      ? SIZE_NUMERIC
+      : SIZE_ALPHA;
+  const colourStocks = [
+    { ...concept.primary, stock: sizes.length === 1 ? [8] : [2, 4, 5, 4, 2] },
+    { ...concept.alternate, stock: sizes.length === 1 ? [6] : [1, 3, 4, 3, 1] },
+  ];
+  const supplier = conceptSuppliers[concept.categorySlug];
+  const category = categories.find((item) => item.slug === concept.categorySlug);
+  if (!supplier || !category) throw new Error(`Unknown concept category: ${concept.categorySlug}`);
+
+  return {
+    slug: concept.slug,
+    name: concept.name,
+    supplierSlug: supplier.slug,
+    supplierName: supplier.name,
+    category: category.name,
+    categorySlug: category.slug,
+    description: concept.description,
+    fabric: concept.fabric,
+    care: concept.care,
+    priceInPaise: concept.priceInPaise,
+    gstBps: 500,
+    palette: concept.categorySlug,
+    sizes,
+    colours: colourStocks.map(({ name, hex }) => ({ name, hex })),
+    variants: makeVariants(concept.slug, sizes, colourStocks, concept.priceInPaise),
+    imageAlts: [`AI concept view of the ${concept.name}`, `Detail crop of the ${concept.name} concept image`],
+    isFeatured: false,
+    popularity: 70 - index,
+    releasedAt: "2026-10-31",
+    reviews: [],
+  };
+});
+
+export const products: readonly Product[] = [
+  ...productSeeds.map((product) => ({
+    ...product,
+    colours: product.colourStocks.map(({ name, hex }) => ({ name, hex })),
+    variants: makeVariants(product.slug, product.sizes, product.colourStocks, product.priceInPaise),
+  })),
+  ...expandedProducts,
+];
 
 export const featuredProducts = products.filter((product) => product.isFeatured);
 export const productSizes = [...new Set(products.flatMap((product) => product.sizes))];
@@ -425,3 +475,4 @@ export function getCategoryBySlug(slug: string) {
 export function isProductInStock(product: Product) {
   return product.variants.some((variant) => variant.stockQty > 0);
 }
+import expandedConcepts from "@/data/catalogue-expansion.json";

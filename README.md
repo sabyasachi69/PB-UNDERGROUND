@@ -12,7 +12,7 @@ Public information routes include `/delivery`, `/contact`, and clearly marked dr
 
 All fictional maker names, products, reviews, imagery, and commercial claims remain explicitly labelled `[SAMPLE]` until launch content is supplied.
 
-All twelve sample catalogue products now use clearly labelled AI concept model imagery. See [demo image provenance](./docs/DEMO_IMAGERY.md) for the asset paths, prompts and replacement rule.
+The sample catalogue has 40 styles: ten each in Layers, Shirts, Bottoms and Essentials. Each style has at least two colour choices and a clearly labelled AI concept image. The image depicts the first listed colour; alternate colours are sample options and are not pictured. See [demo image provenance](./docs/DEMO_IMAGERY.md) for source and replacement details.
 
 The latest architecture and connectivity review is available as a [downloadable technical audit](./output/pdf/PB_UNDERGROUND_Technical_Audit.pdf).
 
