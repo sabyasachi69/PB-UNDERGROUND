@@ -32,6 +32,17 @@
 .category-hero--essentials h1 { font-size: clamp(4.2rem, 9vw, 9rem); }
 .category-hero > div:not(.header-scene) { max-width: 48%; margin: 3rem 0 0; flex-direction: column; gap: 0.5rem; }
 .category-hero > div:not(.header-scene) p { max-width: 100%; }
+.category-hero .header-scene__button { transform-style: preserve-3d; }
+.category-hero .header-scene__layer { position: absolute; display: block; transform-style: preserve-3d; }
+.category-hero .header-scene__layer--tee { top: 11%; left: 0; width: 69%; height: 74%; z-index: 1; }
+.category-hero .header-scene__layer--shirt { top: 2%; left: 15%; width: 74%; height: 85%; z-index: 2; }
+.category-hero .header-scene__layer--hoodie { top: 11%; right: -5%; width: 71%; height: 79%; z-index: 3; }
+.category-hero .header-scene--shirts .header-scene__image { transform-origin: 50% 19%; }
+.category-hero .header-scene--bottoms .header-scene__image { object-position: center 41%; }
+.category-hero .header-scene--essentials .header-scene__image { object-position: center 55%; }
+.category-hero .header-scene--layers .header-scene__orbit--inner { border-color: #f66d60bb; }
+.category-hero .header-scene--bottoms .header-scene__route { transform: rotate(-14deg); }
+.category-hero .header-scene--essentials .header-scene__orbit--outer { width: 78%; left: 11%; }
 
 .information-hero--delivery, .information-hero--contact, .information-hero--legal { min-height: clamp(42rem, 82dvh, 55rem); display: flex; flex-direction: column; justify-content: center; }
 .information-hero--delivery h1 { max-width: 10ch; font-size: clamp(4.2rem, 7.4vw, 8.4rem); }
@@ -82,6 +93,12 @@
 @keyframes fabric-unfurl { from { opacity: 0.55; transform: translate3d(4rem, 0, -100px) rotateZ(-18deg) scale(0.78); } to { opacity: 1; transform: translate3d(0, 0, 0) rotateZ(0) scale(1); } }
 @keyframes message-turn { from { opacity: 0.55; transform: translate3d(3rem, 0, -100px) rotateY(55deg) scale(0.8); } to { opacity: 1; transform: translate3d(0, 0, 0) rotateY(0) scale(1); } }
 @keyframes bag-lift { from { opacity: 0.55; transform: translate3d(0, 6rem, -90px) rotateX(18deg) scale(0.82); } to { opacity: 1; transform: translate3d(0, 0, 0) rotateX(0) scale(1); } }
+@keyframes layer-tee-arrive { from { opacity: 0; transform: translate3d(-36%, 18%, -130px) rotateY(-28deg) rotateZ(-12deg) scale(0.76); } to { opacity: 1; transform: translate3d(0, 0, -65px) rotateY(-12deg) rotateZ(-7deg) scale(1); } }
+@keyframes layer-shirt-arrive { from { opacity: 0; transform: translate3d(14%, -24%, -90px) rotateY(36deg) rotateZ(11deg) scale(0.72); } to { opacity: 1; transform: translate3d(0, 0, -20px) rotateY(8deg) rotateZ(3deg) scale(1); } }
+@keyframes layer-hoodie-arrive { from { opacity: 0; transform: translate3d(38%, 20%, 30px) rotateY(-30deg) rotateZ(12deg) scale(0.68); } to { opacity: 1; transform: translate3d(0, 0, 45px) rotateY(-7deg) rotateZ(-3deg) scale(1); } }
+@keyframes shirt-unfold { 0% { opacity: 0.3; transform: translate3d(4rem, 0, -110px) rotateY(72deg) scaleX(0.42); } 65% { opacity: 1; transform: translate3d(0, 0, 12px) rotateY(-9deg) scaleX(1.03); } 100% { opacity: 1; transform: translate3d(0, 0, 0) rotateY(0) scaleX(1); } }
+@keyframes bottoms-stride { 0% { opacity: 0.35; transform: translate3d(-4rem, 4rem, -100px) rotateZ(-15deg) scale(0.75); } 65% { opacity: 1; transform: translate3d(0.8rem, -0.5rem, 10px) rotateZ(3deg) scale(1.03); } 100% { opacity: 1; transform: translate3d(0, 0, 0) rotateZ(0) scale(1); } }
+@keyframes essentials-arrange { 0% { opacity: 0.3; transform: translate3d(2rem, -3rem, -140px) rotateY(-30deg) rotateZ(13deg) scale(0.72); } 70% { opacity: 1; transform: translate3d(-0.5rem, 0.5rem, 10px) rotateY(4deg) rotateZ(-3deg) scale(1.03); } 100% { opacity: 1; transform: translate3d(0, 0, 0) rotateY(0) rotateZ(0) scale(1); } }
 @keyframes scene-breathe { from { transform: translateY(5px) rotate(-1deg); } to { transform: translateY(-10px) rotate(1deg); } }
 @keyframes dust-clear { 0% { opacity: 0; transform: translateX(-7rem) scale(0.6); } 38% { opacity: 0.9; } 100% { opacity: 0; transform: translateX(5rem) scale(1.5); } }
 @keyframes route-draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
@@ -90,6 +107,13 @@
 @media (prefers-reduced-motion: no-preference) {
   .header-scene__motion { animation: scene-arrive 1.1s cubic-bezier(0.2, 0.9, 0.2, 1) both; }
   .header-scene--collection .header-scene__motion { animation-name: stack-drop; }
+  .header-scene--layers .header-scene__motion { animation: none; }
+  .header-scene--layers .header-scene__layer--tee { animation: layer-tee-arrive 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s both; }
+  .header-scene--layers .header-scene__layer--shirt { animation: layer-shirt-arrive 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.24s both; }
+  .header-scene--layers .header-scene__layer--hoodie { animation: layer-hoodie-arrive 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.44s both; }
+  .header-scene--shirts .header-scene__motion { animation: shirt-unfold 1.25s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .header-scene--bottoms .header-scene__motion { animation: bottoms-stride 1.15s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .header-scene--essentials .header-scene__motion { animation: essentials-arrange 1.25s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
   .header-scene--delivery .header-scene__motion { animation: scooter-arrive 1.45s cubic-bezier(0.18, 0.82, 0.22, 1) both; }
   .header-scene--maker .header-scene__motion { animation-name: maker-assemble; }
   .header-scene--fabric .header-scene__motion { animation-name: fabric-unfurl; }
@@ -137,6 +161,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .header-scene__motion, .header-scene__image, .header-scene__route, .header-scene__dust, .information-hero--delivery h1 { animation: none !important; }
+  .header-scene__motion, .header-scene__layer, .header-scene__image, .header-scene__route, .header-scene__dust, .information-hero--delivery h1 { animation: none !important; }
   .header-scene__tilt { transition: none; transform: none; }
 }

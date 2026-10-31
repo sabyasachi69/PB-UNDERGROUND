@@ -3,10 +3,17 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { CatalogueClient } from "@/components/catalogue-client";
-import { HeaderScene } from "@/components/header-scene";
+import { HeaderScene, type SceneKind } from "@/components/header-scene";
 import { categories, getCategoryBySlug } from "@/data/products";
 
 type CategoryPageProps = { params: Promise<{ category: string }> };
+
+const categoryScenes: Record<string, SceneKind> = {
+  layers: "layers",
+  shirts: "shirts",
+  bottoms: "bottoms",
+  essentials: "essentials",
+};
 
 export function generateStaticParams() {
   return categories.map((category) => ({ category: category.slug }));
@@ -27,7 +34,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   return (
     <main className="shop-page category-page" id="main-content">
       <header className={`category-hero scene-host category-hero--${category.slug}`}>
-        <HeaderScene kind="collection" />
+        <HeaderScene kind={categoryScenes[category.slug] ?? "collection"} />
         <p className="eyebrow">Category / {category.name}</p><h1>{category.name}</h1>
         <div><p>{category.description}</p><span>{category.note}</span></div>
       </header>
