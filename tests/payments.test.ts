@@ -41,7 +41,7 @@ describe("payment security", () => {
 });
 
 describe("UPI payment lifecycle", () => {
-  it("keeps reserved stock on success and releases it exactly once on failure", () => {
+  it("keeps sample stock available on simulated success and failure", () => {
     const now = new Date("2026-10-24T01:00:00.000Z");
     const [successVariant, failureVariant] = products.find((product) => product.slug === "gate-seven-hoodie")!.variants;
 
@@ -50,7 +50,7 @@ describe("UPI payment lifecycle", () => {
     const successSetup = getDemoPaymentSetup(successful.order.orderNumber, now);
     completeSimulatedPayment(successful.order.orderNumber, successSetup.attemptToken, "success", now);
     expect(getDemoTrackingOrder(successful.order.orderNumber, now)?.paymentStatus).toBe("paid");
-    expect(getDemoStock(now).get(successVariant.id)).toBe(successBefore - 1);
+    expect(getDemoStock(now).get(successVariant.id)).toBe(successBefore);
 
     const failureBefore = getDemoStock(now).get(failureVariant.id)!;
     const failed = createDemoOrder(upiOrderInput(now, failureVariant.id), now, "simulator");
@@ -61,12 +61,12 @@ describe("UPI payment lifecycle", () => {
     expect(getDemoStock(now).get(failureVariant.id)).toBe(failureBefore);
   });
 
-  it("expires a pending payment after fifteen minutes and restores stock", () => {
+  it("expires a pending payment without changing sample stock", () => {
     const now = new Date("2026-10-24T02:00:00.000Z");
     const variant = products.find((product) => product.slug === "workshop-tote")!.variants[0];
     const before = getDemoStock(now).get(variant.id)!;
     const created = createDemoOrder(upiOrderInput(now, variant.id), now, "simulator");
-    expect(getDemoStock(now).get(variant.id)).toBe(before - 1);
+    expect(getDemoStock(now).get(variant.id)).toBe(before);
 
     const afterExpiry = new Date(now.getTime() + 16 * 60_000);
     expect(getDemoTrackingOrder(created.order.orderNumber, afterExpiry)?.paymentStatus).toBe("failed");

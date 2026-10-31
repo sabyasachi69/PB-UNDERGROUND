@@ -41,7 +41,9 @@ npm run db:reset
 
 The catalogue, COD checkout, UPI success/failure walkthrough, customer account flow and supplier walkthrough work without external accounts by using checked-in sample data, isolated in-memory server stores and a clearly labelled local payment simulator. Create a disposable account at `/signup`; a delivered sample order is added so the 48-hour return flow can be tested. The supplier walkthrough is available without an account at `/partner/demo`. Demo state resets and must not be used for live orders.
 
-When `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are set, authentication and customer records switch to Supabase Auth and the RLS-protected Phase 5 schema. `SUPABASE_SECRET_KEY` is server-only and is required for self-service account deletion. The migration also creates the private `return-evidence` Storage bucket, 2 MB image limits and owner-scoped policies.
+When `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are set, authentication and customer records switch to Supabase Auth and the RLS-protected Phase 5 schema. `SUPABASE_SECRET_KEY` is server-only and is required for self-service account deletion and connected return-photo uploads. The private `return-evidence` bucket has 2 MB image limits and owner-scoped reads; uploads go through the server after eligibility checks.
+
+The API uses client-IP rate limits when deployed on Vercel. On another host, set `PB_TRUST_PROXY_IP=1` only if its ingress replaces `X-Forwarded-For` with the actual client address; otherwise configure rate limits at that ingress. Do not expose a user-controlled forwarding header as a trusted IP.
 
 To exercise Razorpay itself, add all three test-mode values to `.env.local`: `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` and `RAZORPAY_WEBHOOK_SECRET`. Only `rzp_test_` keys are accepted in Phase 4. Configure the test webhook URL as `/api/payments/razorpay/webhook` and subscribe to `payment.captured`, `payment.failed` and `order.paid`. Secrets stay server-side.
 

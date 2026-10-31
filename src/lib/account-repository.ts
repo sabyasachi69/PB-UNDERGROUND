@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import type { AccountOrder, AccountSnapshot, AccountUser, ReturnRequest, SavedAddress, WishlistEntry } from "@/lib/account-types";
 import { findCatalogueVariantByIdentity, findCatalogueVariantByLocalId } from "@/lib/catalogue-identifiers";
 import { demoAccounts } from "@/lib/demo-account-store";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
 
 type SupabaseVariantRow = {
@@ -179,40 +180,77 @@ export async function removeAccountWishlistItem(user: AccountUser, localVariantI
 function decodeEvidence(dataUrl: string) {
   const match = dataUrl.match(/^data:image\/(jpeg|png|webp);base64,(.+)$/);
   if (!match) throw new Error("Return evidence must be a JPEG, PNG or WebP image.");
-  return { extension: match[1] === "jpeg" ? "jpg" : match[1], content: Buffer.from(match[2], "base64") };
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(match[2]) || match[2].length % 4 !== 0) {
+    throw new Error("Return evidence is not valid base64 image data.");
+  }
+  const content = Buffer.from(match[2], "base64");
+  const isJpeg = content.length >= 3 && content[0] === 0xff && content[1] === 0xd8 && content[2] === 0xff;
+  const isPng = content.length >= 8 && content.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  const isWebp = content.length >= 12 && content.toString("ascii", 0, 4) === "RIFF" && content.toString("ascii", 8, 12) === "WEBP";
+  if (!(match[1] === "jpeg" ? isJpeg : match[1] === "png" ? isPng : isWebp)) {
+    throw new Error("Return evidence does not match its image type.");
+  }
+  return { extension: match[1] === "jpeg" ? "jpg" : match[1], content };
 }
 
 export async function createAccountReturn(user: AccountUser, input: { orderId: string; itemIds: string[]; reason: "size" | "defect"; details: string; photos: string[] }) {
   if (!isSupabaseConfigured()) return demoAccounts.createReturn(user.id, input);
   const supabase = await createSupabaseServerClient();
+  const admin = createSupabaseAdminClient();
+  if (!supabase || !admin) throw new Error("Return photo uploads need the server-only Supabase secret key.");
+  const { data: order, error: orderError } = await supabase.from("orders")
+    .select("id, status, updated_at")
+    .eq("id", input.orderId).eq("profile_id", user.id).maybeSingle();
+  if (orderError) throw new Error(orderError.message);
+  if (!order || order.status !== "delivered" || Date.parse(order.updated_at) < Date.now() - 48 * 60 * 60_000) {
+    throw new Error("The 48-hour return window has closed for this order.");
+  }
+  if (new Set(input.itemIds).size !== input.itemIds.length) throw new Error("Choose each return item only once.");
+  const { data: items, error: itemsError } = await supabase.from("order_items")
+    .select("id").eq("order_id", input.orderId).in("id", input.itemIds);
+  if (itemsError) throw new Error(itemsError.message);
+  if (items?.length !== input.itemIds.length) throw new Error("One or more return items do not belong to this order.");
+  const { data: existing, error: existingError } = await supabase.from("returns")
+    .select("id").eq("order_id", input.orderId).eq("profile_id", user.id).maybeSingle();
+  if (existingError) throw new Error(existingError.message);
+  if (existing) throw new Error("A return request already exists for this order.");
+
   const requestId = randomUUID();
   const uploaded: string[] = [];
-  for (const [index, photo] of input.photos.entries()) {
-    const file = decodeEvidence(photo);
-    if (file.content.byteLength > 2_097_152) throw new Error("Each return photo must be 2 MB or smaller.");
-    const path = `${user.id}/${requestId}/${index + 1}.${file.extension}`;
-    const { error } = await supabase!.storage.from("return-evidence").upload(path, file.content, { contentType: `image/${file.extension === "jpg" ? "jpeg" : file.extension}`, upsert: false });
+  try {
+    for (const [index, photo] of input.photos.entries()) {
+      const file = decodeEvidence(photo);
+      if (file.content.byteLength > 2_097_152) throw new Error("Each return photo must be 2 MB or smaller.");
+      const path = `${user.id}/${requestId}/${index + 1}.${file.extension}`;
+      const { error } = await admin.storage.from("return-evidence").upload(path, file.content, { contentType: `image/${file.extension === "jpg" ? "jpeg" : file.extension}`, upsert: false });
+      if (error) throw new Error(error.message);
+      uploaded.push(path);
+    }
+    const { data, error } = await supabase.from("returns").insert({
+      id: requestId,
+      order_id: input.orderId,
+      profile_id: user.id,
+      item_ids: input.itemIds,
+      reason: input.reason,
+      details: input.details,
+      photo_urls: uploaded,
+    }).select("id, order_id, reason, details, photo_urls, status, created_at, orders(order_number)").single();
     if (error) throw new Error(error.message);
-    uploaded.push(path);
+    return {
+      id: data.id,
+      orderId: data.order_id,
+      orderNumber: (data.orders as unknown as { order_number?: string } | null)?.order_number ?? "Order",
+      reason: data.reason,
+      details: data.details,
+      photoUrls: data.photo_urls,
+      status: data.status,
+      createdAt: data.created_at,
+    } as ReturnRequest;
+  } catch (error) {
+    if (uploaded.length) {
+      const cleanup = await admin.storage.from("return-evidence").remove(uploaded);
+      if (cleanup.error) throw new Error("Return request failed and its uploaded photos could not be removed.");
+    }
+    throw error;
   }
-  const { data, error } = await supabase!.from("returns").insert({
-    id: requestId,
-    order_id: input.orderId,
-    profile_id: user.id,
-    item_ids: input.itemIds,
-    reason: input.reason,
-    details: input.details,
-    photo_urls: uploaded,
-  }).select("id, order_id, reason, details, photo_urls, status, created_at, orders(order_number)").single();
-  if (error) throw new Error(error.message);
-  return {
-    id: data.id,
-    orderId: data.order_id,
-    orderNumber: (data.orders as unknown as { order_number?: string } | null)?.order_number ?? "Order",
-    reason: data.reason,
-    details: data.details,
-    photoUrls: data.photo_urls,
-    status: data.status,
-    createdAt: data.created_at,
-  } as ReturnRequest;
 }

@@ -19,13 +19,13 @@ This file records reversible implementation choices that are not final business 
 - The guided supplier demo will use an isolated browser-side fixture store and will never touch live customer or payment data.
 - Multi-supplier orders will use supplier-specific fulfillment records rather than one shared supplier status.
 - Vercel Hobby may be used for a non-commercial demo only. Commercial hosting is a launch-gate decision.
-- Until a Supabase project is connected, the Phase 3 COD walkthrough uses an isolated in-memory server order store. It performs real validation, idempotency, and stock decrement for the running demo, but resets on restart and is explicitly not a live-order datastore.
+- Until durable commerce is connected, the Phase 3 COD walkthrough uses an isolated in-memory server order store. It performs server-side validation and idempotency, but sample orders do not decrement shared catalogue stock. The store resets on restart and is not a live-order datastore.
 - Until Razorpay test credentials are supplied, Phase 4 uses a clearly labelled local success/failure simulator. With credentials present, only `rzp_test_` keys are accepted; live collection remains a launch-gate decision.
-- UPI inventory reservations expire after 15 minutes. Failure and expiry restore stock exactly once, while successful signature verification commits the reservation.
+- UPI demo payment attempts expire after 15 minutes. Sample stock remains unchanged by simulated success, failure and expiry. A future live payment flow needs durable inventory reservations and reconciliation with provider events.
 - Razorpay webhook bodies are verified before JSON parsing, and `x-razorpay-event-id` is the replay-protection key. The durable schema stores only a payload hash rather than a full webhook body.
 - Until a Supabase project is connected, Phase 5 uses scrypt-hashed disposable credentials, a signed HttpOnly SameSite=Lax cookie and an owner-scoped in-memory customer store. The local store is a demo fallback only and resets with the server.
 - Connected customer authentication uses Supabase Auth email/password with `@supabase/ssr`. The app trusts `auth.getUser()` and database RLS, never editable user metadata, for ownership.
-- Return evidence accepts one to three JPEG, PNG or WebP images of at most 2 MB each. Connected mode writes to the private `return-evidence` bucket; demo mode keeps data URLs in memory only.
+- Return evidence accepts one to three JPEG, PNG or WebP images of at most 2 MB each. Connected mode requires the server-only Supabase secret key, checks order and item eligibility before upload, writes to the private `return-evidence` bucket and removes uploads if the return insert fails. Demo mode keeps data URLs in memory only.
 - Supabase is the sole production data runtime. The in-memory stores exist only for an explicitly non-production demo; production order creation, payment state and tracking must use durable Supabase records before live commerce is enabled.
 - Public order tracking requires both the display order number and a random bearer token. The public route returns only delivery progress, slot, coarse destination and payment state—not line items, totals, phone, email or street address.
 

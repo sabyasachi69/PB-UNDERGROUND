@@ -5,7 +5,7 @@ import { getAvailableDeliverySlots } from "@/lib/commerce";
 import { createDemoOrder, getDemoPublicTrackingOrder, getDemoStock, getDemoTrackingOrder } from "@/lib/demo-order-store";
 
 describe("COD order creation", () => {
-  it("decrements stock exactly once for an idempotent request", () => {
+  it("keeps sample stock available across idempotent demo requests", () => {
     const now = new Date("2026-10-23T01:00:00.000Z");
     const variant = products.find((product) => product.slug === "gate-seven-hoodie")!.variants[0];
     const before = getDemoStock().get(variant.id);
@@ -29,7 +29,7 @@ describe("COD order creation", () => {
     expect(replay.trackingToken).toBe(first.trackingToken);
     expect(first.trackingToken).not.toBe(first.order.orderNumber);
     expect(first.order.orderNumber).toMatch(/^PBU-261023-\d{4}$/);
-    expect(getDemoStock().get(variant.id)).toBe(before! - 1);
+    expect(getDemoStock().get(variant.id)).toBe(before);
     expect(getDemoTrackingOrder(first.order.orderNumber)?.firstName).toBe("Priya");
     expect(getDemoPublicTrackingOrder(first.order.orderNumber, "wrong-token")).toBeNull();
     const publicOrder = getDemoPublicTrackingOrder(first.order.orderNumber, first.trackingToken);

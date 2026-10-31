@@ -23,7 +23,6 @@ type PrivateOrder = TrackingOrder & {
   paymentAttemptToken: string | null;
   providerOrderId: string | null;
   providerPaymentId: string | null;
-  stockReleasedAt: string | null;
 };
 
 type DemoOrderState = {
@@ -113,9 +112,8 @@ export function createDemoOrder(
     throw new Error(quote.errors[0] ?? "The order could not be validated.");
   }
 
-  for (const line of quote.lines) {
-    state.stock.set(line.variantId, (state.stock.get(line.variantId) ?? 0) - line.quantity);
-  }
+  // Sample checkout has no durable, verified inventory. Do not let public demo
+  // orders consume the shared catalogue stock shown to other visitors.
 
   const placedAt = now.toISOString();
   const number = orderNumber(now);
@@ -143,7 +141,6 @@ export function createDemoOrder(
     paymentAttemptToken: input.paymentMethod === "upi" ? randomUUID() : null,
     providerOrderId: input.paymentMethod === "upi" && paymentProvider === "simulator" ? `order_test_${randomUUID().replaceAll("-", "").slice(0, 18)}` : null,
     providerPaymentId: null,
-    stockReleasedAt: null,
     subtotalInPaise: quote.subtotalInPaise,
     discountInPaise: quote.discountInPaise,
     deliveryFeeInPaise: quote.deliveryFeeInPaise,
@@ -265,20 +262,10 @@ export function getDemoPublicTrackingOrder(number: string, trackingToken: string
   return toPublicTrackingOrder(order);
 }
 
-function releaseReservedStock(order: PrivateOrder, now: Date) {
-  if (order.stockReleasedAt || order.paymentMethod !== "upi") return false;
-  for (const item of order.items) {
-    state.stock.set(item.variantId, (state.stock.get(item.variantId) ?? 0) + item.quantity);
-  }
-  order.stockReleasedAt = now.toISOString();
-  return true;
-}
-
 function failOrderPayment(order: PrivateOrder, now: Date) {
   if (order.paymentStatus === "paid" || order.paymentStatus === "failed") return false;
   order.paymentStatus = "failed";
   order.status = "cancelled";
-  releaseReservedStock(order, now);
   const existingEvent = order.events.find((item) => item.status === "cancelled");
   if (existingEvent) existingEvent.timestamp ??= now.toISOString();
   else order.events.push({ status: "cancelled", label: trackingLabels.cancelled, timestamp: now.toISOString() });

@@ -1,4 +1,7 @@
+import { isIP } from "node:net";
+
 type RateLimitBucket = { count: number; resetsAt: number };
+const MAX_RATE_LIMIT_BUCKETS = 4_096;
 
 const globalForRateLimits = globalThis as typeof globalThis & {
   __pbUndergroundRateLimits?: Map<string, RateLimitBucket>;
@@ -21,12 +24,24 @@ export function isSameOrigin(request: Request) {
 }
 
 export function takeRateLimit(request: Request, scope: string, limit = 10, windowMs = 60_000) {
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const client = forwarded || "local";
+  // Vercel overwrites this header at ingress. Other hosts may opt in only
+  // when their trusted proxy does the same; otherwise rate limiting belongs
+  // at the ingress where the client's address can be authenticated.
+  const trustedProxy = process.env.VERCEL === "1" || process.env.PB_TRUST_PROXY_IP === "1";
+  if (!trustedProxy) return { allowed: true, retryAfterSeconds: 0 };
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",", 1)[0]?.trim();
+  if (!forwarded || !isIP(forwarded)) return { allowed: false, retryAfterSeconds: Math.ceil(windowMs / 1_000) };
+  const client = forwarded;
   const key = `${scope}:${client}`;
   const now = Date.now();
   const bucket = rateLimits.get(key);
   if (!bucket || bucket.resetsAt <= now) {
+    if (!bucket && rateLimits.size >= MAX_RATE_LIMIT_BUCKETS) {
+      for (const [existingKey, existingBucket] of rateLimits) {
+        if (existingBucket.resetsAt <= now) rateLimits.delete(existingKey);
+      }
+      if (rateLimits.size >= MAX_RATE_LIMIT_BUCKETS) return { allowed: false, retryAfterSeconds: Math.ceil(windowMs / 1_000) };
+    }
     rateLimits.set(key, { count: 1, resetsAt: now + windowMs });
     return { allowed: true, retryAfterSeconds: 0 };
   }
