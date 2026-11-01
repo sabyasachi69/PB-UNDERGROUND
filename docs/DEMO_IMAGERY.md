@@ -8,6 +8,6 @@ The 28 new styles and their garment, primary colour and photographic framing are
 
 The user-provided `Fashion_Model_Reference_Pack_120_Photos.zip` supplied category and commercial-photography art direction. Its README identifies the photographs as copyrighted retailer images without verified rights for AI input or redistribution. None of its photos was copied into the repository or sent to the image generator. The new concepts were generated from written garment descriptions and lighting/framing direction.
 
-The partner-page hero uses `public/images/hero/partner-handoff.png`, an AI-generated concept showing two fictional garment-business collaborators holding a finished shirt together. It illustrates the proposed maker-to-platform handoff; it does not depict an actual PB UNDERGROUND partner or completed commercial agreement. The animation labels describe the sample supplier workflow.
+The partner-page hero is a code-drawn, replayable story rather than a generated photograph. It shows a local store listing a piece, a student finding it through PB UNDERGROUND, the order returning to the store, and a recorded sale. The illustrated flow describes a sample program, not a completed commercial agreement or actual supplier transaction.
 
 Before accepting live orders, replace the AI concepts with owner-approved photographs of the actual garments in every offered colour, verify the inventory and measurements, and confirm the final product claims with suppliers.

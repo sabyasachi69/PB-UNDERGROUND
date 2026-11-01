@@ -1623,6 +1623,7 @@ body:has(.supplier-demo-shell) > .skip-link { display: none; }
   .partner-hero h1 { font-size: clamp(4rem, 19vw, 6.5rem); }
   .partner-hero-note > div, .partner-final-cta > div { align-items: stretch; flex-direction: column; }
   .supplier-section-heading, .supplier-loop li, .supplier-loop li > div { grid-template-columns: 1fr; gap: 1rem; }
+  .supplier-trust .supplier-section-heading h2 { font-size: clamp(2.25rem, 11vw, 3rem); }
   .supplier-loop li { min-height: auto; padding-bottom: 2rem; }
   .payout-statement { box-shadow: 0.65rem 0.65rem 0 var(--signal); }
   .payout-statement-head, .payout-date { align-items: flex-start; flex-direction: column; }
