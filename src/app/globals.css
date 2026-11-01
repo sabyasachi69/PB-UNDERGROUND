@@ -423,8 +423,9 @@ summary {
 .manifesto-note p { color: var(--bone-400); }
 
 .signal-marquee { overflow: hidden; border-top: 1px solid rgb(242 237 232 / 20%); border-bottom: 1px solid rgb(242 237 232 / 20%); background: var(--blood-500); color: white; }
-.signal-marquee > div { display: flex; width: max-content; min-height: 3.2rem; align-items: center; animation: marquee-shift 24s linear infinite; }
-.signal-marquee span { padding: 0 1.5rem; font: 720 0.7rem var(--mono); text-transform: uppercase; letter-spacing: 0.1em; }
+.signal-marquee__track { display: flex; width: max-content; min-height: 3.2rem; align-items: center; animation: marquee-shift 48s linear infinite; }
+.signal-marquee__group { display: flex; flex: none; min-width: 100vw; align-items: center; justify-content: space-around; white-space: nowrap; }
+.signal-marquee span { display: inline-flex; flex: none; align-items: center; gap: clamp(1rem, 2vw, 2rem); padding: 0 clamp(0.8rem, 1.5vw, 1.5rem); font: 720 0.7rem var(--mono); text-transform: uppercase; letter-spacing: 0.1em; }
 .signal-marquee i { font-style: normal; }
 @keyframes marquee-shift { to { transform: translateX(-50%); } }
 
@@ -1607,7 +1608,7 @@ body:has(.supplier-demo-shell) > .skip-link { display: none; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .signal-marquee > div { animation: none; }
+  .signal-marquee__track { animation: none; }
 }
 
 @media (hover: none) {

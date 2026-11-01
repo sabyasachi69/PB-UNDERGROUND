@@ -19,6 +19,8 @@ const zones = [
   { name: "Phagwara side", time: "Same-day slots", fee: "Zone check at checkout" },
 ] as const;
 
+const marqueeMessages = ["Local makers", "Campus delivery", "Small drops", "Honest pricing"] as const;
+
 export default function Home() {
   return (
     <main className="home-page" id="main-content">
@@ -46,9 +48,14 @@ export default function Home() {
       </section>
 
       <div className="signal-marquee" role="region" aria-label="Local makers, campus delivery, small drops, honest pricing">
-        <div aria-hidden="true">
-          <span>Local makers</span><i>✦</i><span>Campus delivery</span><i>✦</i><span>Small drops</span><i>✦</i><span>Honest pricing</span><i>✦</i>
-          <span>Local makers</span><i>✦</i><span>Campus delivery</span><i>✦</i><span>Small drops</span><i>✦</i><span>Honest pricing</span><i>✦</i>
+        <div className="signal-marquee__track" aria-hidden="true">
+          {[0, 1].map((copy) => (
+            <div className="signal-marquee__group" key={copy}>
+              {Array.from({ length: 4 }, (_, repeat) => marqueeMessages.map((message) => (
+                <span key={`${repeat}-${message}`}>{message}<i>✦</i></span>
+              )))}
+            </div>
+          ))}
         </div>
       </div>
 
