@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { ReceiptText, ShoppingBag, Store } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-export type SceneKind = "collection" | "layers" | "shirts" | "bottoms" | "essentials" | "delivery" | "maker" | "fabric" | "message" | "document" | "bag";
+export type SceneKind = "collection" | "layers" | "shirts" | "bottoms" | "essentials" | "delivery" | "maker" | "partnership" | "fabric" | "message" | "document" | "bag";
 
 const scenes: Record<SceneKind, { src: string; action: string; code: string }> = {
   collection: { src: "/images/hero/garment-stack.png", action: "Replay the garment stack animation", code: "DROP / 001" },
@@ -13,6 +14,7 @@ const scenes: Record<SceneKind, { src: string; action: string; code: string }> =
   essentials: { src: "/images/hero/category-essentials.png", action: "Replay the everyday essentials animation", code: "DAILY / KIT" },
   delivery: { src: "/images/hero/delivery-scooter.png", action: "Replay the scooter delivery animation", code: "ROUTE / LPU" },
   maker: { src: "/images/hero/maker-counter.png", action: "Replay the maker counter animation", code: "MADE / CLOSE" },
+  partnership: { src: "/images/hero/partner-handoff.png", action: "Replay the partnership handoff animation", code: "MAKER / PB / CAMPUS" },
   fabric: { src: "/images/hero/fabric-roll.png", action: "Replay the fabric animation", code: "FROM / HERE" },
   message: { src: "/images/hero/message-envelope.png", action: "Replay the message animation", code: "SAY / HELLO" },
   document: { src: "/images/hero/message-envelope.png", action: "Replay the document animation", code: "POLICY / DRAFT" },
@@ -82,12 +84,26 @@ export function HeaderScene({ kind }: { kind: SceneKind }) {
                 <span className="header-scene__layer header-scene__layer--shirt"><Image src="/images/hero/category-shirt.png" alt="" fill sizes="(max-width: 700px) 60vw, 31vw" priority className="header-scene__image" /></span>
                 <span className="header-scene__layer header-scene__layer--hoodie"><Image src={scene.src} alt="" fill sizes="(max-width: 700px) 60vw, 31vw" priority className="header-scene__image" /></span>
               </>
+            ) : kind === "partnership" ? (
+              <>
+                <span className="partner-scene__photo">
+                  <Image src={scene.src} alt="" fill sizes="(max-width: 900px) 100vw, 48vw" priority className="header-scene__image partner-scene__image" />
+                </span>
+                <span className="partner-scene__flow" aria-hidden="true">
+                  <span className="partner-scene__stage partner-scene__stage--maker"><Store size={19} strokeWidth={1.6} /><strong>Local maker</strong></span>
+                  <span className="partner-scene__link partner-scene__link--first" />
+                  <span className="partner-scene__stage partner-scene__stage--order"><ShoppingBag size={19} strokeWidth={1.6} /><strong>Campus order</strong></span>
+                  <span className="partner-scene__link partner-scene__link--second" />
+                  <span className="partner-scene__stage partner-scene__stage--statement"><ReceiptText size={19} strokeWidth={1.6} /><strong>Weekly statement</strong></span>
+                </span>
+              </>
             ) : (
               <Image src={scene.src} alt="" fill sizes="(max-width: 700px) 85vw, 45vw" priority className="header-scene__image" />
             )}
           </button>
         </div>
       </div>
+      {kind === "partnership" && <span className="sr-only">Concept image of a local garment maker and a marketplace representative handing over a folded shirt. The sample partnership flow is local maker, campus order, then weekly statement.</span>}
       <span className="header-scene__code" aria-hidden="true">{scene.code} / CONCEPT VISUAL</span>
       <span className="header-scene__hint" aria-hidden="true">Move to tilt · tap to replay</span>
     </div>

@@ -28,8 +28,8 @@ export default function PartnerPage() {
   return (
     <main className="partner-page" id="main-content">
       <header className="partner-hero scene-host">
-        <HeaderScene kind="maker" />
-        <div>
+        <HeaderScene kind="partnership" />
+        <div className="partner-hero__copy">
           <p className="eyebrow eyebrow--light">For local cloth and garment businesses</p>
           <h1>Your cloth.<br />Our delivery.<br /><em>Their campus.</em></h1>
         </div>
