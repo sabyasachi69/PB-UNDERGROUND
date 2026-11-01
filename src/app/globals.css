@@ -531,26 +531,72 @@ summary {
 }
 
 .journey-mark {
-  width: 5rem;
-  height: 5rem;
-  margin: 3rem 0;
-  border: 1px solid rgb(244 241 234 / 22%);
-  background: radial-gradient(circle, var(--signal) 0 4px, transparent 5px);
-  transform: rotate(45deg);
+  position: relative;
+  display: grid;
+  width: clamp(7.5rem, 10vw, 10rem);
+  aspect-ratio: 1;
+  margin: 2rem 0 2.4rem;
+  overflow: hidden;
+  place-items: center;
+  border: 1px solid rgb(244 241 234 / 24%);
+  background: radial-gradient(circle at 25% 20%, rgb(244 241 234 / 9%), transparent 55%), #202824;
+  transition: transform 350ms var(--ease-out), border-color 350ms ease;
 }
 
-.journey-grid li:nth-child(2) .journey-mark {
-  border-radius: 50%;
+.journey-mark::before {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 23px, rgb(244 241 234 / 5%) 24px 25px);
+  content: "";
 }
 
-.journey-grid li:nth-child(3) .journey-mark {
-  clip-path: polygon(0 0, 100% 0, 72% 100%, 0 76%);
+.journey-mark::after {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  width: 0.35rem;
+  height: 0.35rem;
   background: var(--signal);
+  border-radius: 50%;
+  content: "";
 }
 
-.journey-grid li:nth-child(4) .journey-mark {
-  border-radius: 50% 50% 0;
+.journey-mark svg {
+  position: relative;
+  z-index: 1;
+  width: 78%;
+  height: 78%;
+  stroke: var(--bone-100);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
+
+.journey-grid li:hover .journey-mark {
+  transform: translateY(-5px);
+  border-color: rgb(244 241 234 / 55%);
+}
+
+.journey-maker-awning { stroke: var(--signal); animation: maker-awning 5s ease-in-out infinite; }
+.journey-maker-light { fill: var(--signal); stroke: none; animation: maker-light 3s ease-in-out infinite; }
+.journey-stitch-thread { stroke: var(--signal); stroke-width: 2.2; stroke-dasharray: 84; animation: stitch-seam 5s ease-in-out infinite; }
+.journey-stitch-needle { stroke: var(--signal); transform-origin: 76px 48px; animation: stitch-needle 5s ease-in-out infinite; }
+.journey-order-card { animation: order-card-arrive 5s ease-in-out infinite; }
+.journey-order-card rect { fill: rgb(210 29 26 / 16%); stroke: var(--signal); }
+.journey-order-card path { stroke: var(--signal); }
+.journey-order-confirm { stroke: var(--signal); stroke-width: 2.5; stroke-dasharray: 30; animation: order-confirm 5s ease-in-out infinite; }
+.journey-gate-arrival { fill: var(--signal); stroke: none; animation: gate-arrival 5s ease-in-out infinite; }
+
+@keyframes maker-awning {
+  0%, 12%, 100% { opacity: 0.5; transform: translateY(-5px); }
+  32%, 82% { opacity: 1; transform: translateY(0); }
+}
+@keyframes maker-light { 0%, 100% { opacity: 0.4; } 45%, 75% { opacity: 1; } }
+@keyframes stitch-seam { 0%, 12%, 100% { stroke-dashoffset: 84; } 48%, 85% { stroke-dashoffset: 0; } }
+@keyframes stitch-needle { 0%, 12%, 100% { transform: translate(-6px, -6px) rotate(-12deg); } 48%, 85% { transform: translate(0, 0) rotate(0); } }
+@keyframes order-card-arrive { 0%, 12%, 100% { opacity: 0.25; transform: translateY(12px); } 42%, 85% { opacity: 1; transform: translateY(0); } }
+@keyframes order-confirm { 0%, 38%, 100% { stroke-dashoffset: 30; } 60%, 85% { stroke-dashoffset: 0; } }
+@keyframes gate-arrival { 0%, 16%, 100% { opacity: 0.25; transform: translate(-22px, 9px); } 55%, 85% { opacity: 1; transform: translate(0, 0); } }
 
 .journey-grid h3 {
   margin: 0 0 0.6rem;
@@ -750,25 +796,41 @@ summary {
   position: relative;
   min-height: 16rem;
   overflow: hidden;
-  background: var(--ink);
+  background: radial-gradient(circle at 80% 20%, rgb(210 29 26 / 13%), transparent 40%), repeating-linear-gradient(0deg, transparent 0 35px, rgb(244 241 234 / 3%) 36px 37px), var(--ink);
   color: var(--signal);
 }
 
 .zone-map svg {
   position: absolute;
-  top: 48%;
-  left: 52%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
-.map-ring {
+.zone-map__heading,
+.zone-map__footer {
   position: absolute;
-  border: 1px solid rgb(244 241 234 / 24%);
-  border-radius: 50%;
+  z-index: 1;
+  left: 1.2rem;
+  color: var(--bone-100);
+  font: 600 0.6rem var(--mono);
+  letter-spacing: 0.08em;
 }
 
-.map-ring--one { inset: 14%; }
-.map-ring--two { inset: 30%; }
-.map-road { position: absolute; width: 140%; height: 1px; top: 46%; left: -20%; background: rgb(244 241 234 / 35%); transform: rotate(-27deg); }
+.zone-map__heading { top: 1.2rem; }
+.zone-map__footer { bottom: 1.2rem; display: flex; align-items: center; gap: 0.6rem; }
+.zone-map__footer span { width: 0.4rem; height: 0.4rem; background: var(--signal); border-radius: 50%; animation: maker-light 3s ease-in-out infinite; }
+.zone-map__blocks { stroke: rgb(244 241 234 / 13%); stroke-width: 1; }
+.zone-map__route-base { stroke: rgb(244 241 234 / 42%); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.zone-map__route-trace { stroke: var(--signal); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 18 82; animation: route-travel 5s linear infinite; }
+.zone-map__origin-halo,
+.zone-map__destination-halo { stroke: var(--signal); stroke-width: 1.5; transform-box: fill-box; transform-origin: center; animation: route-pulse 3s ease-out infinite; }
+.zone-map__destination-halo { animation-delay: 1.5s; }
+.zone-map__origin { fill: var(--signal); }
+.zone-map__destination { stroke: var(--bone-100); stroke-width: 2; stroke-linejoin: round; }
+.zone-map text { fill: var(--bone-100); stroke: none; font: 600 12px var(--mono); letter-spacing: 2px; }
+@keyframes route-travel { to { stroke-dashoffset: -100; } }
+@keyframes route-pulse { 0% { opacity: 0.8; transform: scale(0.8); } 70%, 100% { opacity: 0.12; transform: scale(1.45); } }
 
 .zone-board ul {
   display: grid;
@@ -788,7 +850,7 @@ summary {
 
 .zone-board li:last-child { border-bottom: 0; }
 .zone-board strong { font-family: var(--display); font-size: 1.05rem; letter-spacing: -0.03em; }
-.zone-board span { color: var(--muted); font-family: var(--mono); font-size: 0.64rem; }
+.zone-board li span { color: var(--muted); font-family: var(--mono); font-size: 0.64rem; }
 .zone-board small { grid-column: 1 / -1; color: var(--muted); }
 
 .partners {
@@ -1514,7 +1576,7 @@ body:has(.supplier-demo-shell) > .skip-link { display: none; }
   .manifesto-note { grid-template-columns: 2rem 1fr; margin-top: 3rem; }
   .journey-grid { grid-template-columns: 1fr; }
   .journey-grid li { min-height: auto; padding: 1.2rem 0 2.5rem; }
-  .journey-mark { width: 3.5rem; height: 3.5rem; margin: 2rem 0; }
+  .journey-mark { width: 7rem; margin: 1.5rem 0; }
   .section-heading--row { align-items: flex-start; flex-direction: column; }
   .product-grid { grid-template-columns: 1fr; gap: 3rem; }
   .product-card:nth-child(even) { margin-top: 0; }
@@ -1609,6 +1671,10 @@ body:has(.supplier-demo-shell) > .skip-link { display: none; }
     transition-duration: 0.01ms !important;
   }
   .signal-marquee__track { animation: none; }
+  .journey-maker-awning, .journey-maker-light, .journey-stitch-thread, .journey-stitch-needle,
+  .journey-order-card, .journey-order-confirm, .journey-gate-arrival, .zone-map__route-trace,
+  .zone-map__origin-halo, .zone-map__destination-halo, .zone-map__footer span { animation: none !important; }
+  .zone-map__route-trace { stroke-dasharray: none; }
 }
 
 @media (hover: none) {

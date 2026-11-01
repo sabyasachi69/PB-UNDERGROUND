@@ -1,15 +1,16 @@
-import { ArrowRight, MapPin, MoveRight } from "lucide-react";
+import { ArrowRight, MoveRight } from "lucide-react";
 import Link from "next/link";
 
 import { HeroArtifact } from "@/components/hero-artifact";
+import { DeliveryRouteVisual, JourneyVisual } from "@/components/home-story-visuals";
 import { ProductCard } from "@/components/product-card";
 import { featuredProducts } from "@/data/products";
 
 const journey = [
-  { number: "01", title: "Local maker", body: "A shop close enough to know by name." },
-  { number: "02", title: "Cut + stitched", body: "Small runs, useful fabrics, no distant warehouse." },
-  { number: "03", title: "Your order", body: "Picked on your phone between classes." },
-  { number: "04", title: "At your gate", body: "A clear slot. A familiar place. No guessing." },
+  { number: "01", kind: "maker", title: "Local maker", body: "A shop close enough to know by name." },
+  { number: "02", kind: "stitch", title: "Cut + stitched", body: "Small runs, useful fabrics, no distant warehouse." },
+  { number: "03", kind: "order", title: "Your order", body: "Picked on your phone between classes." },
+  { number: "04", kind: "gate", title: "At your gate", body: "A clear slot. A familiar place. No guessing." },
 ] as const;
 
 const zones = [
@@ -79,7 +80,7 @@ export default function Home() {
           {journey.map((step) => (
             <li key={step.number}>
               <span>{step.number}</span>
-              <div className="journey-mark" aria-hidden="true" />
+              <JourneyVisual kind={step.kind} />
               <h3>{step.title}</h3>
               <p>{step.body}</p>
             </li>
@@ -116,12 +117,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="zone-board">
-          <div className="zone-map" aria-hidden="true">
-            <span className="map-ring map-ring--one" />
-            <span className="map-ring map-ring--two" />
-            <span className="map-road" />
-            <MapPin size={34} strokeWidth={1.4} />
-          </div>
+          <DeliveryRouteVisual />
           <ul>
             {zones.map((zone) => (
               <li key={zone.name}>
